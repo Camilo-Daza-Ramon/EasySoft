@@ -1,0 +1,101 @@
+.clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+body {
+  position: relative; 
+  margin: 0 auto; 
+  color: #001028;
+  background: #FFFFFF;  
+}
+
+table{
+  padding-bottom: 5px;
+}
+.datos-subrayados{
+  text-decoration: underline;
+}
+
+p{
+  margin: 5px !important;
+  text-align: justify;
+  line-height: 1;
+}
+
+
+ol li{
+  line-height: 1;
+  text-align: justify;
+}
+
+header {
+  padding: 0px 0;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.titulo{
+  font-size: 15px;
+  font-family: Calibri;
+  margin: 10px;
+  
+}
+.right{
+  text-align: right !important;
+}
+
+.logo {
+  margin: 8px;
+  width: 88px;
+}
+
+.logo2 {
+  width: 78px;
+}
+.logo3 {
+  height: 48px;
+}
+
+.bg-morado{
+  background: rgb(85,64,111);
+  color: #fff;
+}
+
+.bg-morado-claro{
+  background: rgb(127,114,150);
+  color: #fff;
+}
+
+.bg-gris{
+  background: rgb(208,206,206);
+}
+
+.text-info-abajo{
+  text-align: center;
+  bottom: 0px;
+}
+span {
+  font-size: 11px;
+  text-align: center;
+  line-height: 1;  
+}
+
+h2 {
+  font-family: 'Calibri';
+  font-size: 14px;
+  margin: 10px 5px 10px 5px;
+}
+
+
+footer {
+  color: #5D6975;
+  width: 100%;
+  height: 30px;
+  position: absolute;
+  bottom: 0;
+  border-top: 1px solid #C1CED9;
+  padding: 8px 0;
+  text-align: center;
+}
