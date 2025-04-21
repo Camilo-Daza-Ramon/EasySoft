@@ -12,36 +12,77 @@
                     <div class="box-header bg-blue with-border">
                         <form class="navbar-form navbar-left" action="{{route('clientes.index')}}" role="search" method="GET">
                               <div class="form-group">
-                                <input type="text" class="form-control" name="palabra" placeholder="Buscar" value="{{(isset($_GET['palabra'])? $_GET['palabra']:'')}}" autocomplete="off">
-
-                                <select class="form-control" name="proyecto" id="proyecto">
-                                    <option value="">Elija un proyecto</option>
-                                    @foreach($proyectos as $proyecto)
-
-                                        <option value="{{$proyecto->ProyectoID}}" {{(isset($_GET['proyecto'])) ? (($_GET['proyecto'] == $proyecto->ProyectoID) ? 'selected' : '') : ''}}>{{$proyecto->NumeroDeProyecto}}</option>
-                                    @endforeach
-                                </select>
-
-                                <select class="form-control" name="departamento" id="departamento">
+                                <input type="text" class="form-control" name="palabra" placeholder="Buscar" value="{{(isset($_GET['palabra'])? $_GET['palabra']:'')}}" autocomplete="off" id="filter-text">
+                                <!-- Esconder el Filtro Poryectos cuando sean los usuarios 274 y 275 -->
+                                @auth
+                                    @if(!in_array(auth()->user()->id, [274, 275]))
+                                        <select class="form-control" name="proyecto" id="proyecto" data-unique="mi-select">
+                                            <option value="">Elija un proyecto</option>
+                                            @foreach($proyectos as $proyecto)
+                                                <option value="{{$proyecto->ProyectoID}}" {{(isset($_GET['proyecto'])) ? (($_GET['proyecto'] == $proyecto->ProyectoID) ? 'selected' : '') : ''}}>{{$proyecto->NumeroDeProyecto}}</option>
+                                            @endforeach
+                                        </select>
+                                    @endif
+                                @endauth
+                                <select class="form-control" name="departamento" id="departamento" data-unique="mi-select">
                                     <option value="">Elija un departamento</option>
                                     @foreach($departamentos as $departamento)
                                         <option value="{{$departamento->DeptId}}" {{(isset($_GET['departamento'])) ? (($_GET['departamento'] == $departamento->DeptId) ? 'selected' : '') : ''}}>{{$departamento->NombreDelDepartamento}}</option>
                                     @endforeach
                                 </select>
-
-                                <select class="form-control" name="municipio" id="municipio">
+                                
+                                <select class="form-control" name="municipio" id="municipio" data-unique="mi-select">
                                     <option value="">Elija un municipio</option>
                                 </select> 
 
-                                <select class="form-control" name="estado" id="estado">
+                                <select class="form-control" name="estado" id="estado" data-unique="mi-select">
                                     <option value="">Elija un estado</option>
                                     @foreach($estados as $estado)
                                         <option value="{{$estado}}" {{(isset($_GET['estado'])) ? (($_GET['estado'] == $estado) ? 'selected' : '') : ''}}>{{$estado}}</option>
                                     @endforeach
                                 </select>
+                                <select class="form-control" name="nodo_id" id="nodo_id"  data-unique="mi-select">
+                                    <option value="">Elija Nodo</option>
+                                    @foreach(DB::table('NODOS')->get() as $nodo)
+                                        <option value="{{ $nodo->nodo_id }}" {{ request('nodo_id') == $nodo->nodo_id ? 'selected' : '' }}>
+                                            {{ $nodo->NombreNodo }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <select class="form-control" name="ComunidadID" id="ComunidadID" data-unique="mi-select">
+                                    <option value="">Elija Comunidad</option>
+                                    @foreach(DB::table('comunidades')->get() as $comunidad)
+                                        <option value="{{ $comunidad->ComunidadID }}" {{ request('ComunidadID') == $comunidad->ComunidadID ? 'selected' : '' }}>
+                                            {{ $comunidad->nombre_comunidad }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <!-- Filtro por Tipo de Comunidad -->
+                                <select class="form-control" name="tipo_comunidad" id="tipo_comunidad" data-unique="mi-select">
+                                    <option value="">Elija Tipo de Comunidad</option>
+                                    @foreach(['HOGAR', 'ZONA WIFI'] as $tipoComunidad)
+                                        <option value="{{ $tipoComunidad }}" {{ request('tipo_comunidad') == $tipoComunidad ? 'selected' : '' }}>
+                                            {{ $tipoComunidad }}
+                                        </option>
+                                    @endforeach
+                                </select>
 
+                                <!-- Filtro por Tipo de Servicio -->
+                                <select class="form-control" name="tipo_servicio" id="tipo_servicio"  data-unique="mi-select">
+                                    <option value="">Elija Tipo de Servicio</option>
+                                    @foreach(['COMUNIDAD DE CONECTIVIDAD', 'PUNTO DE ACCESO COMUNITARIO'] as $tipoServicio)
+                                        <option value="{{ $tipoServicio }}" {{ request('tipo_servicio') == $tipoServicio ? 'selected' : '' }}>
+                                            {{ $tipoServicio }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+
+
+                                <!-- Filtro por Nodo -->
+                              <button type="submit" class="btn btn-default" id="button-filter"> <i class="fa fa-search"></i>  Buscar</button>
+                                           
                               </div>
-                              <button type="submit" class="btn btn-default"> <i class="fa fa-search"></i>  Buscar</button>
                         </form>
                         
                         <div class="box-tools pull-right">
@@ -107,7 +148,6 @@
 
                                         <td>{{mb_convert_case($dato->NombreBeneficiario . ' ' . $dato->Apellidos, MB_CASE_TITLE, "UTF-8")}}</td>
 
-                                        
                                             @if(!empty($dato->municipio))
                                                 <td>{{$dato->municipio->NombreMunicipio}}</td>
                                                 <td>{{$dato->municipio->departamento->NombreDelDepartamento}}</td>
@@ -116,7 +156,6 @@
                                                 <td>{{$dato->ubicacion->municipio->departamento->NombreDelDepartamento}}</td>
                                             @endif
                                         <td>{{$dato->proyecto->NumeroDeProyecto}}</td>
-
                                         <td>
                                             @if($dato->Status == 'ACTIVO')
                                                 {{$dato->EstadoDelServicio}}

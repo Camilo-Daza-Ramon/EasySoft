@@ -21,6 +21,7 @@ class InstalacionesInfraestructuraController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    
     public function index(Request $request)
     {
         if (Auth::user()->can('instalaciones-infraestructura-listar')) {

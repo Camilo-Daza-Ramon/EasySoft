@@ -154,24 +154,34 @@ class ProyectosController extends Controller
 
             $alertas = [];
 
-            if(count($proyecto->facturacion_api) == 0){
-            $alertas[] = 'Debe especificar el <b>API para facturación electronica.</b>';
+            if (is_array($proyecto->facturacion_api) || $proyecto->facturacion_api instanceof Countable) {
+                if (count($proyecto->facturacion_api) == 0) {
+                    $alertas[] = 'Debe especificar el <b>API para facturación electronica.</b>';
+                }
             }
-
-            if(count($proyecto->plan_comercial) == 0){
-            $alertas[] = 'Debe Ingresar los <b>planes comerciales</b> que aplican al proyecto.</li>';
+            
+            if (is_array($proyecto->plan_comercial) || $proyecto->plan_comercial instanceof Countable) {
+                if (count($proyecto->plan_comercial) == 0) {
+                    $alertas[] = 'Debe Ingresar los <b>planes comerciales</b> que aplican al proyecto.</li>';
+                }
             }
-
-            if($proyecto->clausula_permanencia && (count($proyecto->clausula) == 0 || count($proyecto->clausula) < $proyecto->vigencia)){
-            $alertas[] = 'Debe ingresar las <b>clausulas de permanencia</b>.</li>';
+            
+            if (is_array($proyecto->clausula) || $proyecto->clausula instanceof Countable) {
+                if (count($proyecto->clausula) == 0 || count($proyecto->clausula) < $proyecto->vigencia) {
+                    $alertas[] = 'Debe ingresar las <b>clausulas de permanencia</b>.</li>';
+                }
             }
-
-            if(count($proyecto->proyecto_municipio) == 0){
-            $alertas[] = 'Debe ingresar los <b>Municipios</b> que se aplican al proyecto.</li>';
+            
+            if (is_array($proyecto->proyecto_municipio) || $proyecto->proyecto_municipio instanceof Countable) {
+                if (count($proyecto->proyecto_municipio) == 0) {
+                    $alertas[] = 'Debe ingresar los <b>Municipios</b> que se aplican al proyecto.</li>';
+                }
             }
-
-            if(count($proyecto->costo) == 0){
-            $alertas[] = 'Debe ingresar los <b>Costos</b> que se aplican al proyecto.</li>';
+            
+            if (is_array($proyecto->costo) || $proyecto->costo instanceof Countable) {
+                if (count($proyecto->costo) == 0) {
+                    $alertas[] = 'Debe ingresar los <b>Costos</b> que se aplican al proyecto.</li>';
+                }
             }
 
             $proyectos = Proyecto::get();

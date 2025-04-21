@@ -59,17 +59,21 @@
                                             </select>
                                         </div>
                                     </div>
+                                    @auth 
+                                        @if(!in_array(auth()->user()->id, [274, 275]))
+                                        <div class="row">
+                                            <div class="form-group col-md-3 col-sm-6">
+                                                <select class="form-control" name="proyecto" id="proyecto">
+                                                    <option value="">Elija un proyecto</option>
+                                                    @foreach($proyectos as $proyecto)
 
-                                    <div class="row">
-                                        <div class="form-group col-md-3 col-sm-6">
-                                            <select class="form-control" name="proyecto" id="proyecto">
-                                                <option value="">Elija un proyecto</option>
-                                                @foreach($proyectos as $proyecto)
-
-                                                    <option value="{{$proyecto->ProyectoID}}" {{(isset($_GET['proyecto'])) ? (($_GET['proyecto'] == $proyecto->ProyectoID) ? 'selected' : '') : ''}}>{{$proyecto->NumeroDeProyecto}}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                                        <option value="{{$proyecto->ProyectoID}}" {{(isset($_GET['proyecto'])) ? (($_GET['proyecto'] == $proyecto->ProyectoID) ? 'selected' : '') : ''}}>{{$proyecto->NumeroDeProyecto}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        @endif
+                                    @endauth
+ 
                                         <div class="form-group col-md-3 col-sm-6">
                                             <select class="form-control" name="departamento" id="departamento">
                                                 <option value="">Elija un departamento</option>

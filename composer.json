@@ -11,7 +11,7 @@
         "barryvdh/laravel-dompdf": "^0.8.2",
         "bestnetwork/telnet": "1.0.1",
         "chumper/zipper": "^1.0",
-        "codedge/laravel-fpdf": "^1.5",
+        "codedge/laravel-fpdf": "*",
         "consoletvs/charts": "5.*",
         "firebase/php-jwt": "^5.3",
         "intervention/image": "^2.5",

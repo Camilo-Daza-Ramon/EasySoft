@@ -37,15 +37,19 @@
                                         <div class="form-group col-md-4">
                                             <input type="number" class="form-control" name="identificacion" placeholder="Número identificacion" value="{{(isset($_GET['identificacion'])? $_GET['identificacion']:'')}}" autocomplete="off">
                                         </div>
+                                        @auth
+                                            @if(!in_array(auth()->user()->id, [274, 275]))
+                                                <div class="form-group col-md-4">
+                                                    <select class="form-control" name="proyecto" id="proyecto">
+                                                        <option value="">Elija un proyecto</option>
+                                                        @foreach($proyectos as $proyecto)
+                                                            <option value="{{$proyecto->ProyectoID}}" {{(isset($_GET['proyecto'])) ? (($_GET['proyecto'] == $proyecto->ProyectoID) ? 'selected' : '') : ''}}>{{$proyecto->NumeroDeProyecto}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div> 
+                                            @endif
+                                        @endauth
 
-                                        <div class="form-group col-md-4">
-                                            <select class="form-control" name="proyecto" id="proyecto">
-                                                <option value="">Elija un proyecto</option>
-                                                @foreach($proyectos as $proyecto)
-                                                    <option value="{{$proyecto->ProyectoID}}" {{(isset($_GET['proyecto'])) ? (($_GET['proyecto'] == $proyecto->ProyectoID) ? 'selected' : '') : ''}}>{{$proyecto->NumeroDeProyecto}}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
 
                                         <div class="form-group col-md-4">
                                             <select class="form-control" name="departamento" id="departamento">

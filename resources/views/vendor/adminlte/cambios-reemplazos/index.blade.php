@@ -17,14 +17,16 @@
                         <form class="navbar-form navbar-left" action="{{route('cambios-reemplazos.index')}}" role="search" method="GET">
                             <div class="form-group">
                                 <input type="number" class="form-control" name="documento" id="documento" placeholder="Documento" value="{{(isset($_GET['documento'])? $_GET['documento']:'')}}" autocomplete="off">
-
-                                <select class="form-control" name="proyecto" id="proyecto">
-                                    <option value="">Elija un proyecto</option>
-                                    @foreach($proyectos as $proyecto)
-
-                                        <option value="{{$proyecto->ProyectoID}}" {{(isset($_GET['proyecto'])) ? (($_GET['proyecto'] == $proyecto->ProyectoID) ? 'selected' : '') : ''}}>{{$proyecto->NumeroDeProyecto}}</option>
-                                    @endforeach
-                                </select>
+                                @auth
+                                    @if(!in_array(auth()->user()->id, [274, 275]))
+                                        <select class="form-control" name="proyecto" id="proyecto">
+                                            <option value="">Elija un proyecto</option>
+                                            @foreach($proyectos as $proyecto)
+                                                <option value="{{$proyecto->ProyectoID}}" {{(isset($_GET['proyecto'])) ? (($_GET['proyecto'] == $proyecto->ProyectoID) ? 'selected' : '') : ''}}>{{$proyecto->NumeroDeProyecto}}</option>
+                                            @endforeach
+                                        </select>
+                                    @endif
+                                @endauth
 
                                 <select class="form-control" name="departamento" id="departamento">
                                     <option value="">Elija un departamento</option>

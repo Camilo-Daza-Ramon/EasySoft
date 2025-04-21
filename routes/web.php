@@ -18,10 +18,9 @@ Route::get('/', function () {
 });
 
 Route::group(['middleware' => 'auth'], function () {
-
-	Route::get('novedades/masivas', 'NovedadesController@masivas')->name('novedades.masivas');
+	Route::get('clientes/{id}/edit', 'ClientesController@edit')->name('clientes.edit');
 	Route::post('novedades/masivas', 'NovedadesController@agregar_masivas')->name('novedades.agregar_masivas');
-
+	Route::post('users/guajira/create', 'ClientesController@createUsersGuajira')->name('users.guajira.create');
 	#prueba
 	Route::get('atencion-clientes/otro', 'AtencionClientesController@otro')->name('atencion-clientes.otro');
 
@@ -36,7 +35,6 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/storage/installations/{id}/{file}','PrivateController@archivos_instalaciones');
 	Route::get('/storage/red/plataforma/{id}/{file}','PrivateController@archivos_instrucciones')->name('gestion.view.instruccion');
 	Route::get('/storage/mantenimientos/{tipo}/{id}/{file}','PrivateController@archivos_mantenimientos');
-
 
 
 	Route::get('atencion-clientes/estadisticas', 'AtencionClientesController@estadisticas')->name('atencion-clientes.estadisticas');
@@ -115,7 +113,6 @@ Route::group(['middleware' => 'auth'], function () {
 	
 		Route::resource('documental-carpetas', DocumentalCarpetaController::class);
 
-
 		Route::resource('infraestructuras', InfraestructuraController::class);
 
 		Route::resource('infraestructuras.propiedades', InfraestructurasPropiedadesContoller::class);
@@ -140,6 +137,8 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::get('instalaciones/edit/infraestructura/{infra_id}', 'InstalacionesInfraestructuraController@edit')->name('instalaciones.edit.infra');
 		
 		Route::delete('instalaciones/destroy/infraestructura/{infra_id}', 'InstalacionesInfraestructuraController@destroy')->name('instalaciones.destroy.infra');
+		
+		Route::get('/instalacionesinfraestructura/sync', 'InstalacionesInfraestructuraController@syncData')->name('instalacionesinfraestructura.sync');
 
 	//});
 
@@ -552,4 +551,5 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('red/reporte/onts', 'ReporteOntFallidoController@index')->name('red.reporte.onts');
 	#Eliminar reporter ONT
 	Route::delete('red/reporte/onts/{id}', 'ReporteOntFallidoController@destroy')->name('red.reporte.onts.destroy');
+
 });

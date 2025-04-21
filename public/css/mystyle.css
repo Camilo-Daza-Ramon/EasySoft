@@ -5,10 +5,16 @@
 .radio-label > label {
 	margin-right: 15%;
 }
+#filter-text {
+  margin-bottom:5px !important;
+}
+select[data-unique="mi-select"] {
+  width: 170px !important;
+  margin-bottom: 5px !important;
 
-.appointment-slot {
-    width: 100%;
-    text-align: left;
+}
+#button-filter{
+  margin-bottom: 5px !important;
 }
 
 .appointment-slot > div {

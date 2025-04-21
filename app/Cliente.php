@@ -172,8 +172,29 @@ class Cliente extends Model
         'reporte',
         'direccion_recibo',
         'zona',
-        'localidad'
+        'localidad',
+        'ComunidadID',
+        'tipo_usuario'
     ];
+    public static function validarLimiteUsuariosProyecto()
+    {
+        // Contar el número total de usuarios asociados al ProyectoId=14
+        $totalUsuarios = self::where('ProyectoId', 14)->count();
+    
+        // Verificar que el total de usuarios no exceda el límite permitido
+        if ($totalUsuarios >= 647) {
+            throw new \Exception('Se ha alcanzado el límite de usuarios permitidos para el ProyectoId=14.');
+        }
+    
+        // Retornar un mensaje de éxito si todo está correcto
+        return 'El registro es permitido.';
+    }
+        
+    public function comunidad()
+    {
+        return $this->belongsTo(Comunidad::class, 'ComunidadID');
+    }
+
 
     public function facturacion(){
     	return $this->hasMany(Facturacion::class, 'ClienteId');

@@ -38,9 +38,7 @@
             <td width="50%">
               <table width="100%">
                 <tr class="bg-morado">
-                  <td>
-                    <img src="img/amigored.png" class="logo">
-                  </td>
+
                   <td>
                     <h2 class="titulo">CONTRATO ÚNICO DE SERVICIOS FIJOS</h2>
                   </td>

@@ -13,15 +13,19 @@
                     <form id="formBuscarPlataformas" class="navbar-form navbar-left" action="{{route('gestion.index')}}" role="search" method="GET">
                         <div class="row">
                             <div class="form-group" style="margin: 0 5px;">
+                                @auth
+                                    @if(!in_array(auth()->user()->id, [274, 275]))
+                                        <select class=" form-control" name="proyecto" id="proyecto">
+                                            <option value="">Elija un proyecto</option>
+                                            @foreach($proyectos as $proyecto)
+                                            <option value="{{$proyecto->ProyectoID}}" {{(isset($_GET['proyecto'])) ? (($_GET['proyecto'] == $proyecto->ProyectoID) ? 'selected' : '') : ''}}>
+                                                {{$proyecto->NumeroDeProyecto}}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    @endif
+                                @endauth
 
-                                <select class=" form-control" name="proyecto" id="proyecto">
-                                    <option value="">Elija un proyecto</option>
-                                    @foreach($proyectos as $proyecto)
-                                    <option value="{{$proyecto->ProyectoID}}" {{(isset($_GET['proyecto'])) ? (($_GET['proyecto'] == $proyecto->ProyectoID) ? 'selected' : '') : ''}}>
-                                        {{$proyecto->NumeroDeProyecto}}
-                                    </option>
-                                    @endforeach
-                                </select>
                             </div>
                             <div class="form-group" style="margin: 0 5px;">
 
@@ -70,8 +74,17 @@
                                     {{$dato->acceso->usuario}}
                                 </td>
                                 <td>
-                                    <input id="input-acceso-password-{{$dato->id}}" style="width: 100px;" disabled value="{{ Illuminate\Support\Facades\Crypt::decrypt($dato->acceso->contrasena) }}" type="password">
-                                    <button onclick="copyName('{{$dato->id}}')" style="padding: 2px 10px;" class="btn btn-primary">
+                                    @php
+                                        try {
+                                            $password = Illuminate\Support\Facades\Crypt::decrypt($dato->acceso->contrasena);
+                                        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+                                            // Si hay error, manejarlo y asignar un valor predeterminado
+                                            $password = 'Error al descifrar';
+                                            logger('Error al descifrar contraseña del acceso ID: ' . $dato->id . ' - ' . $e->getMessage());
+                                        }
+                                    @endphp
+                                <input id="input-acceso-password-{{$dato->id}}" style="width: 100px;" disabled value="{{ $password }}" type="password">
+                                <button onclick="copyName('{{$dato->id}}')" style="padding: 2px 10px;" class="btn btn-primary">
                                         <i id="icon-copy-password-{{$dato->id}}" class="fa fa-copy"></i>
                                     </button>
                                 </td>

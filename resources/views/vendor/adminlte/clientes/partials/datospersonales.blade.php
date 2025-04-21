@@ -47,6 +47,32 @@
 					
 				</div>
 				<div class="row">
+					@if($cliente->ProyectoId == 14)
+						<div class="col-md-6">
+							<label>Comunidad</label>
+							<p>{{$comunidadNombre ?? 'No asignada'}}</p>
+						</div>
+						<div class="col-md-6">
+							<label>Torre</label>
+							<p>{{$estructuraID ?? 'No asignado'}}</p>
+						</div>
+						<div class="col-md-6">
+							<label>Tipo de Servicio</label>
+							<p>{{ $nombreUsuario }}</p>
+						</div>	
+						@if($cliente->tipo_servicio === 'Comunidad de Conectividad') <!-- Verifica el tipo de servicio -->
+						<div class="col-md-6">
+							<label>Tipo de Comunidad</label>
+							<p>{{ $cliente->tipo_comunidad }}</p> <!-- Muestra el valor de tipo_comunidad -->
+						</div>
+						@endif
+						<div class="col-md-6">
+							<label>Inmueble</label>
+							<p>{{ $cliente->inmueble }}</p> <!-- Muestra el valor de tipo_comunidad -->
+						</div>
+					@endif
+				
+							
 					<div class="col-md-6">
 						<label>Teléfono</label>
 						<p>{{$cliente->TelefonoDeContactoFijo}}</p>			
@@ -70,6 +96,22 @@
 				</div>
 
 				<div class="row">
+					@if($cliente->ProyectoId == 14)
+						<div class="col-md-6">
+							<label>Latitud</label>
+							<p>{{ $cliente->Latitud}}</p> <!-- Muestra el valor de tipo_comunidad -->
+						</div>
+						<div>
+							<label>Longitud</label>
+							<p>{{ $cliente->Longitud}}</p> <!-- Muestra el valor de tipo_comunidad -->
+						</div>
+					@endif
+
+					@if($cliente->ProyectoId != 14)
+					<div class="col-md-6">
+						<label>Dirección de Correspondencia</label>
+						<p>{{$cliente->DireccionDeCorrespondencia}}</p>			
+					</div>
 					<div class="col-md-6">
 						<label>Dirección Real</label>
 						<p>
@@ -82,6 +124,7 @@
 							{{$cliente->direccion_recibo}} <br>
 						</p>			
 					</div>
+					@endif
 
 					<div class="col-md-6">
 						<label>Municipio</label>
@@ -96,6 +139,7 @@
 							{{$cliente->municipio->departamento->NombreDelDepartamento}}<br>
 						</p>			
 					</div>
+					@if($cliente->ProyectoId != 14)
 					<div class="col-md-6">
 						<label>Barrio</label>
 						<p>{{$cliente->Barrio}}</p>
@@ -104,13 +148,17 @@
 						<label>Urbanizacion</label>
 						<p>{{$cliente->NombreEdificio_o_Conjunto}}</p>
 					</div>
+					@endif
+
 				</div>
 
 				<div class="row">
+					@if ($cliente->ProyectoId != 14)
 					<div class="col-md-4">
 						<label>Estrato</label>
 						<p>{{$cliente->Estrato}}</p>			
 					</div>
+					@endif
 
 					<div class="col-md-4">
 						<label>Estado Cliente</label>

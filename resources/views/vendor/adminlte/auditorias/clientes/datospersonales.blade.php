@@ -47,6 +47,12 @@
 					
 				</div>
 				<div class="row">
+					@if($cliente->ProyectoId == 14)
+					<div class="col-md-6">
+						<label>Comunidad</label>
+						<p>{{$comunidadNombre ?? 'No asignada'}}</p>
+					</div>
+				@endif
 					<div class="col-md-6">
 						<label>Teléfono</label>
 						<p>{{$cliente->TelefonoDeContactoFijo}}</p>			

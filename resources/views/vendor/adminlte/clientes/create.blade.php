@@ -38,7 +38,7 @@
 
 								<div class="row justify-content-center">									
 									<div class="form-group{{ $errors->has('proyecto') ? ' has-error' : '' }} col-md-3 col-sm-6 text-center">
-										<label>Proyecto</label>
+										<label>*Proyecto</label>
 										<select class="form-control" name="proyecto" id="proyecto" required>
 											<option value="">Elija una Opción</option>
 											@foreach($proyectos as $proyecto)
@@ -46,6 +46,116 @@
 											@endforeach
 										</select>
 									</div>
+									<div class="form-group col-md-3 col-sm-6 text-center" id="comunidad-field" style="display: none;">
+										<label>*Comunidad</label>
+										<select class="form-control" name="ComunidadID" id="comunidad" class="ComunidadCampo" required data-unique="form-client">
+											<option value="">Seleccione una comunidad</option>
+											@foreach($comunidades as $comunidad)
+											<option value="{{ $comunidad->ComunidadID }}">{{ $comunidad->nombre_comunidad }}</option>
+											@endforeach
+										</select>
+									</div>
+									<script> 
+										document.addEventListener('DOMContentLoaded', function () { // Esperar a que el DOM esté listo
+											document.getElementById('proyecto').addEventListener('change', function () {
+												var comunidadField = document.getElementById('comunidad-field');
+												var selectedValue = this.value; // Obtiene el ProyectoID seleccionado
+
+												if (selectedValue == 14) { // Verifica si el ProyectoID es igual a 14
+													comunidadField.style.display = 'block'; // Cambia directamente a display: block
+													comunidadField.classList.add('show'); // Clase opcional para transiciones suaves
+												} else {
+													comunidadField.style.display = 'none'; // Oculta el campo "Comunidad"
+													comunidadField.classList.remove('show'); // Limpia la clase opcional
+													document.getElementById('comunidad').value = ''; // Resetea el campo "Comunidad"
+												}
+											});
+										});
+									</script>	
+									<div class="form-group col-md-3 col-sm-6 text-center" id="nodo-field" style="display: none;">
+										<label>*Nodo</label>
+										<select class="form-control" name="nodo_id" id="nodo" class="NodoCampo" required>
+											<option value="">Seleccione un tipo de Nodo</option>
+													@foreach($nodos as $nodo)
+													<option value="{{ $nodo->id }}">{{ $nodo->NombreNodo }}</option>
+													@endforeach
+										</select>
+									</div>
+									<script> 
+										document.addEventListener('DOMContentLoaded', function () { // Esperar a que el DOM esté listo
+											document.getElementById('proyecto').addEventListener('change', function () {
+												var comunidadField = document.getElementById('nodo-field');
+												var selectedValue = this.value; // Obtiene el ProyectoID seleccionado
+
+												if (selectedValue == 14) { // Verifica si el ProyectoID es igual a 14
+													comunidadField.style.display = 'block'; // Cambia directamente a display: block
+													comunidadField.classList.add('show'); // Clase opcional para transiciones suaves
+												} else {
+													comunidadField.style.display = 'none'; // Oculta el campo "Comunidad"
+													comunidadField.classList.remove('show'); // Limpia la clase opcional
+													document.getElementById('comunidad').value = ''; // Resetea el campo "Comunidad"
+												}
+											});
+										});
+									</script>	
+									<div class="form-group col-md-3 col-sm-6 text-center" id="servicio-field" style="display: none;">
+										<label>*Servicio</label>
+										<select class="form-control" name="tipo_servicio" id="servicio" class="ServicioCampo" required>
+											<option value="">Seleccione un tipo de Servicio</option>
+											<option value="COMUNIDAD DE CONECTIVIDAD">COMUNIDAD DE CONECTIVIDAD</option>
+											<option value="PUNTO DE ACCESO">PUNTO DE ACCESO COMUNITARIO</option>
+										</select>
+									</div>
+									<script>
+										document.addEventListener('DOMContentLoaded', function () {
+											// Elementos relevantes
+											var proyectoDropdown = document.getElementById('proyecto'); // Dropdown de Proyecto
+											var usuarioField = document.getElementById('servicio-field'); // Campo Usuario
+										
+											// Verificar el valor inicial al cargar la página
+											if (proyectoDropdown.value === "14") {
+												usuarioField.style.display = 'block'; // Mostrar el campo Usuario
+											} else {
+												usuarioField.style.display = 'none'; // Ocultar el campo Usuario
+											}
+										
+											// Agregar un listener para cambios en el dropdown
+											proyectoDropdown.addEventListener('change', function () {
+												var selectedValue = this.value.trim(); // Obtener el valor seleccionado
+										
+												if (selectedValue === "14") {
+													usuarioField.style.display = 'block'; // Mostrar el campo Usuario
+												} else {
+													usuarioField.style.display = 'none'; // Ocultar el campo Usuario
+													document.getElementById('usuario').value = ''; // Limpiar el valor seleccionado en el dropdown Usuario
+												}
+											});
+										});
+										</script>	
+										<div class="form-group col-md-3 col-sm-6 text-center" id="Tipo-Comunidad-field" style="display: none;">
+											<label>*Tipo de Comunidad de Conectividad</label>
+												<select class="form-control" name="tipo_comunidad" id="Comunidad" class="ComunidadCampo" required>
+													<option value="">Seleccione un tipo de Servicio</option>
+													<option value="HOGAR">HOGAR</option>
+													<option value="ZONA WIFI">ZONA WIFI</option>
+												</select>
+										</div>		
+										<script>
+											document.addEventListener('DOMContentLoaded', function () { // Esperar a que el DOM esté listo
+												document.getElementById('servicio').addEventListener('change', function () {
+													var tipoComunidadField = document.getElementById('Tipo-Comunidad-field'); // Campo "Tipo de Comunidad de Conectividad"
+													var selectedValue = this.value; // Obtiene la opción seleccionada en el campo "Servicio"
+										
+													if (selectedValue === 'COMUNIDAD DE CONECTIVIDAD') { // Si es "COMUNIDAD DE CONECTIVIDAD"
+														tipoComunidadField.style.display = 'block'; // Muestra el campo "Tipo de Comunidad de Conectividad"
+													} else {
+														tipoComunidadField.style.display = 'none'; // Oculta el campo si no coincide
+														document.getElementById('Comunidad').value = ''; // Resetea el valor del select de Comunidad
+													}
+												});
+											});
+										</script>										
+
 									<div class="form-group{{ $errors->has('tipo_beneficiario') ? ' has-error' : '' }} col-md-3 col-sm-6 text-center" id="panel-tipo-beneficiario" style="display: none;">
 										<label>Tipo de Beneficiario</label>
 										<select class="form-control" name="tipo_beneficiario" id="tipo_beneficiario">
@@ -53,23 +163,23 @@
 										</select>
 									</div>
 
-									
-									<div class="form-group{{ $errors->has('departamento') ? ' has-error' : '' }} col-md-3 col-sm-6">
+									<div class="form-group{{ $errors->has('departamento') ? ' has-error' : '' }} col-md-3 col-sm-6 text-center">
 										<label>*Departamento: </label>
 										<select class="form-control" name="departamento" id="departamento" required>
 											<option value="">Elija una opción</option>
 										</select>           			
 									</div>
 
-									<div class="form-group{{ $errors->has('municipio') ? ' has-error' : '' }} col-md-3 col-sm-6">
+									<div class="form-group{{ $errors->has('municipio') ? ' has-error' : '' }} col-md-3 col-sm-6 text-center">
 										<label>*Municipio: </label> 
 										<select class="form-control" name="municipio" id="municipio" required>
+											<option value="">Elija un Municipio</option>
 										</select>
 									</div>
 
-									<div class="form-group{{ $errors->has('estrato') ? ' has-error' : '' }} col-md-3 col-sm-6">
+									<div class="form-group{{ $errors->has('estrato') ? ' has-error' : '' }} col-md-3 col-sm-6 text-center">
 					            		<label>*Estrato:</label>
-					            		<select name="estrato" class="form-control" id="estrato" required>
+					            		<select name="estrato" class="form-control" id="estrato">
 	                                        <option value="">Elija una opción</option>
 	                                        <option value="0">0</option>
 	                                        <option value="1">1</option>
@@ -82,7 +192,7 @@
 	                                </div>
 								</div>
 							</div>
-						</div>
+						</div>...........
 
 						<!--- Planes y Tarifas --->
 						<div class="panel panel-info" >
@@ -237,7 +347,7 @@
 
 	                                <div id="form-group-email" class="form-group col-md-6 col-sm-6">
 										<label>*Correo:</label>
-										<input type="email" name="correo" class="form-control" placeholder="Correo Electronico" onblur="validarEmail(this)" autocomplete="off" required>
+										<input type="email" name="correo" class="form-control" placeholder="Correo Electronico" onblur="validarEmail(this)" autocomplete="off">
 									</div>                         
 									
 									<div class="form-group col-md-3 col-sm-6">
@@ -1006,6 +1116,15 @@
 					});
 			    }
 			});
+			@if ($errors->any())
+				<div class="alert alert-danger">
+					<ul>
+						@foreach ($errors->all() as $error)
+							<li>{{ $error }}</li>
+						@endforeach
+					</ul>
+				</div>
+			@endif
 		</script>
     @endsection
 @endsection

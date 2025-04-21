@@ -26,7 +26,6 @@
                                         @endpermission 
                                         
                                     </ul>
-                                    
                                 </div>
                             
 
@@ -104,6 +103,7 @@
                                     <th scope="col">Estado</th>
                                     <th>Acciones</th>
                                 </tr>
+
                                 @if($infraestructuras->count() > 0)
                                     @foreach($infraestructuras as $infra)
                                     <tr>

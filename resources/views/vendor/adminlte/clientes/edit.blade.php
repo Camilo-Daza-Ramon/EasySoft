@@ -39,15 +39,64 @@
 											@endforeach
 										</select>
 									</div>
-									<div class="form-group{{ $errors->has('tipo_beneficiario') ? ' has-error' : '' }} col-md-3 text-center" id="panel-tipo-beneficiario">
+									<div class="form-group col-md-3 col-sm-6 text-center" id="comunidad-field" style="display: none;">
+										<label>*Comunidad</label>
+										<select class="form-control" name="ComunidadID" id="comunidad">
+											<option value="">Seleccione una comunidad</option>
+											@foreach($comunidades as $comunidad)
+												<option value="{{ $comunidad->ComunidadID }}">{{ $comunidad->nombre_comunidad }}</option>
+											@endforeach
+										</select>
+									</div>
+									<div class="form-group col-md-3 col-sm-6 text-center" id="usuario-field">
+										<label>*Usuario</label>
+										<select class="form-control" name="tipo_usuario" id="usuario" class="UsuarioCampo" required>
+											<option value="">Seleccione un tipo de usuario</option>
+											<option value="COMUNIDAD DE CONECTIVIDAD">COMUNIDAD DE CONECTIVIDAD</option>
+											<option value="PUNTO DE ACCESO">PUNTO DE ACCESO COMUNITARIO</option>
+											@foreach($nodos as $nodo)
+											<option value="{{ $nodo->nodo_id }}">{{ $nodo->NombreNodo }}</option>
+											@endforeach
+											<option value="HOGAR">HOGAR</option>
+											<option value="USUARIO">USUARIO</option>
+										</select>
+									</div>
+
+									<div class="form-group col-md-3 text-center" id="panel-tipo-beneficiario">
 										<label>Tipo de Beneficiario</label>
 										<select class="form-control" name="tipo_beneficiario" id="tipo_beneficiario">
 											<option value="">Elija una Opción</option>
 											@foreach($tipo_beneficiario as $tipo)
 												<option value="{{$tipo->nombre}}" {{($cliente->tipo_beneficiario == $tipo->nombre)? 'selected' : ''}}>{{$tipo->nombre}}</option>
-											@endforeach											
+											@endforeach
 										</select>
 									</div>
+
+									<script>
+										document.addEventListener('DOMContentLoaded', function () {
+											const proyectoSelect = document.getElementById('proyecto'); // Select de Proyecto
+											const comunidadField = document.getElementById('comunidad-field'); // Campo de Comunidad
+											const tipoBeneficiarioField = document.getElementById('panel-tipo-beneficiario'); // Campo de Tipo de Beneficiario
+									
+											// Función para mostrar/ocultar campos según ProyectoID
+											function toggleFields() {
+												const selectedValue = proyectoSelect.value; // Obtener el valor del ProyectoID seleccionado
+												if (selectedValue == 14) {
+													comunidadField.style.display = 'block'; // Mostrar comunidad
+													tipoBeneficiarioField.style.display = 'none'; // Ocultar tipo de beneficiario
+												} else {
+													comunidadField.style.display = 'none'; // Ocultar comunidad
+													tipoBeneficiarioField.style.display = 'block'; // Mostrar tipo de beneficiario
+												}
+											}
+									
+											// Ejecutar la función al cargar la página (para valores preseleccionados)
+											toggleFields();
+									
+											// Escuchar cambios en el select de Proyecto
+											proyectoSelect.addEventListener('change', toggleFields);
+										});
+									</script>
 
 									<div class="form-group{{ $errors->has('departamento') ? ' has-error' : '' }} col-md-3 col-sm-6">
 										<label>*Departamento: </label>

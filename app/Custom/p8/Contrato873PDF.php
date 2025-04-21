@@ -21,7 +21,7 @@ class Contrato873PDF extends Fpdf
 		$data = $this->datos;
 
 		//fondo 
-      	$this->Image('img/fondo.png','0','0','205','347','PNG');
+      	$this->Image('img/grupo_energia_bogota.png','0','0','205','347','PNG');
 
 	    #COLUMNA 1
 	    $this->SetFillColor(85,64,111);

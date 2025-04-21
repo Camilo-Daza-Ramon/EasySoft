@@ -46,12 +46,47 @@ class ClientesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+     
+
+     
+     public function storeGuajira(Request $request)
+     {
+         // Validar los datos del cliente
+         $request->validate([
+             'nombre' => 'required|string|max:255',
+             'proyecto' => 'required|string', // Asegúrate de que el proyecto sea requerido
+             // Otras validaciones...
+         ]);
+     
+         // Verificar si el proyecto es "PROYECTO GUAJIRA"
+         if ($request->proyecto === 'PROYECTO GUAJIRA') {
+             // Generar el nuevo código de cliente
+             $nuevoCodigoGuajira = Cliente::generarCodigoGuajira();
+         } else {
+             // Manejar otros proyectos o asignar un ID diferente
+             // Por ejemplo, podrías usar un ID autoincremental o cualquier otra lógica
+             $nuevoCodigoGuajira = null; // O cualquier otra lógica que necesites
+         }
+     
+         // Crear el nuevo cliente
+         $cliente = new Cliente();
+         $cliente->id_guajira = $nuevoCodigoGuajira; // Asignar el nuevo código
+         $cliente->nombre = $request->nombre;
+         $cliente->proyecto = $request->proyecto; // Asignar el proyecto
+         // Asignar otros campos...
+         $cliente->save();
+     
+         return redirect()->route('clientes.index')->with('success', 'Cliente registrado con éxito.');
+     }
+
     public function index(Request $request)
     {
         $clientes = '';
+    // Consultar directamente a la base de datos
+
 
         if (Auth::user()->can('clientes-listar')) {
-
+    
             if (Auth::user()->hasRole('vendedor')) {
                 $clientes = Cliente::with('ubicacion')
                 ->Palabra($request->get('palabra'))
@@ -59,6 +94,15 @@ class ClientesController extends Controller
                 ->Departamento($request->get('departamento'))
                 ->Municipio($request->get('municipio'))
                 ->Estado($request->get('estado'))
+                ->when($request->get('tipo_servicio'), function ($query, $tipoServicio) {
+                    if ($tipoServicio === 'COMUNIDAD DE CONECTIVIDAD') {
+                        $query->whereIn('tipo_servicio', ['Comunidad de Conectividad', 'Comunidad de Conectividad CC']);
+                    } elseif ($tipoServicio === 'PUNTO DE ACCESO COMUNITARIO') {
+                        $query->whereIn('tipo_servicio', ['Punto de acceso Comunitario PAC']);
+                    }
+                })
+
+
                 ->where([['Status','RECHAZADO'], ['user_id', Auth::user()->id]])            
                 ->paginate(15);
 
@@ -70,13 +114,38 @@ class ClientesController extends Controller
                 ->Municipio($request->get('municipio'))
                 ->Estado($request->get('estado'))
                 ->Accion($request->get('accion'))
+                ->when($request->get('tipo_servicio'), function ($query, $tipoServicio) {
+                    if ($tipoServicio === 'COMUNIDAD DE CONECTIVIDAD') {
+                        $query->whereIn('tipo_servicio', ['Comunidad de Conectividad', 'Comunidad de Conectividad CC']);
+                    } elseif ($tipoServicio === 'PUNTO DE ACCESO COMUNITARIO') {
+                        $query->whereIn('tipo_servicio', ['Punto de acceso Comunitario PAC']);
+                    }
+                })
+                ->when($request->get('tipo_comunidad'), function ($query, $tipoComunidad) {
+                    return $query->where('tipo_comunidad', $tipoComunidad); // Filtrar por tipo de comunidad
+                })
+                ->when($request->get('nodo_id'), function ($query, $nodoId) {
+                    return $query->where('clientes.nodo_id', $nodoId); // Filtrar por nodo_id
+                })
+                ->when($request->get('ComunidadID'), function ($query, $ComunidadID) {
+                    return $query->where('ComunidadID', $ComunidadID); // Filtro por ComunidadID
+                })
+                ->where(function ($query) {
+                    if (Auth::user()->proyectos()->count() > 0) {
+                        $query->whereIn('ProyectoId', Auth::user()->proyectos()->pluck('ProyectoID'));
+                    }
+                })
+     
+                
+
                 ->where(function ($query) {
                     if(Auth::user()->proyectos()->count() > 0){
                         $query->whereIn('ProyectoId', Auth::user()->proyectos()->pluck('ProyectoID'));
                     }
                 })
                 ->paginate(15);
-            }       
+            }  
+
 
             $proyectos = Proyecto::select('ProyectoID', 'NumeroDeProyecto')
             ->where(function ($query) {
@@ -87,11 +156,31 @@ class ClientesController extends Controller
             ->get();
             $departamentos = Departamento::orderBy('NombreDelDepartamento', 'ASC')->get();
             $estados = ["ACTIVO","INACTIVO", "EN INSTALACION", "PENDIENTE", "RECHAZADO"];
-            return view('adminlte::clientes.index', compact('clientes', 'proyectos', 'departamentos', 'estados'));
+            // Lista de tipos de usuario para el dropdown
+            $tipo_servicios = [ 'COMUNIDAD DE CONECTIVIDAD', 'PUNTO DE ACCESO COMUNITARIO'];
+            return view('adminlte::clientes.index', compact('clientes', 'proyectos', 'departamentos', 'estados', 'tipo_servicios'));
         }else{
             abort(403);
         }
     }
+    // Método para mapear opciones de tipo_servicio a valores numéricos
+    private function mapearTipoUsuario($tipoUsuario)
+    {
+        $map = [
+            'HOGAR' => 'HOGAR',
+            'USUARIO' => 'USUARIO',
+            'NODO PRINCIPAL' => '1', // Convertimos los nodos a texto
+            'NODO SECUNDARIO 1' => '2',
+            'NODO SECUNDARIO 2' => '3',
+            'NODO SECUNDARIO 3' => '4',
+            'NODO SECUNDARIO 4' => '5',
+            'COMUNIDAD DE CONECTIVIDAD' => 'COMUNIDAD DE CONECTIVIDAD',
+            'PUNTO DE ACCESO COMUNITARIO' => 'PUNTO DE ACCESO COMUNITARIO',
+        ];
+    
+        return $map[$tipoUsuario] ?? null; // Retorna el valor mapeado o null si no existe
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -106,12 +195,16 @@ class ClientesController extends Controller
             $proyectos = Proyecto::select('ProyectoID as id', 'NumeroDeProyecto as nombre')->where('Status', 'A')->get();
             $zonas = ['RURAL', 'URBANA'];
             $localidades = ['CORREGIMIENTO', 'INSPECCIÓN','SECTOR-URBANO','VEREDA'];
-
-            return view('adminlte::clientes.create', compact('proyectos','zonas','localidades'));
-        }else{
+            // Consultar los nodos directamente desde la tabla NODOS
+            $nodos = DB::table('NODOS')->select('nodo_id AS id', 'NombreNodo')->get();
+            $comunidades = DB::table('comunidades')->select('ComunidadID', 'nombre_comunidad')->get();
+    
+            return view('adminlte::clientes.create', compact('proyectos', 'zonas', 'localidades', 'comunidades','nodos'));
+        } else {
             abort(403);
         }
     }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -124,12 +217,13 @@ class ClientesController extends Controller
         if (Auth::user()->can('clientes-crear')) {
             //validamos que los datos requeridos no vengan vacidos
             $this->validate(request(),[
-
+                'TipoNodo' => 'nullable|exists:NODOS,nodo_id',
+                'tipo_servicio' => 'required',   
                 'proyecto' => 'required',
                 'departamento' => 'required',
                 'municipio' => 'required',
                 'estrato' => 'required',
-
+    
                 'plan_internet' => 'required',
 
                 'tipo_documento' => 'required',
@@ -161,8 +255,47 @@ class ClientesController extends Controller
 
                 //asignamos todos los datos que se envian por post
                 $cliente = new Cliente;
+                    // Si el tipo de usuario es "Nodo", actualiza el estado del nodo seleccionado
+
+                $cliente->tipo_servicio = $request->tipo_servicio;
+                // Validar y actualizar el estado del nodo seleccionado
+                if (!empty($request->TipoNodo)) {
+                    // Consultar el nodo seleccionado
+                    $nodo = DB::table('NODOS')
+                        ->where('nodo_id', $request->TipoNodo)
+                        ->first();
+
+                    // Validar que el nodo no esté en estado "No disponible"
+                    if ($nodo->estado === 'No disponible') {
+                        return ['tipo_mensaje' => 'error', 'mensaje' => 'El nodo ya se encuentra en uso.'];
+                    }
+
+                    // Actualizar estado del nodo a "No disponible"
+                    DB::table('NODOS')
+                        ->where('nodo_id', $request->TipoNodo)
+                        ->update(['estado' => 'No disponible']);
+                }
+                // Si el tipo de usuario es "Hogar", descontar un hogar a la comunidad
+                if ($request->tipo_servicio === 'Hogar') {
+                    // Consultar la comunidad seleccionada
+                    $comunidad = DB::table('comunidades')
+                        ->where('ComunidadID', $request->ComunidadID)
+                        ->first();
+    
+                    // Validar que haya al menos un hogar disponible para conectar
+                    if ($comunidad->HogaresConectar <= 0) {
+                        return ['tipo_mensaje' => 'error', 'mensaje' => 'No hay hogares disponibles para conectar en esta comunidad.'];
+                    }
+    
+                    // Descontar un hogar a la comunidad
+                    DB::table('comunidades')
+                        ->where('ComunidadID', $request->ComunidadID)
+                        ->decrement('HogaresConectar', 1);
+                }
+                
                 $cliente->tipo_beneficiario = $request->tipo_beneficiario;
                 $cliente->TipoDeDocumento = $request->tipo_documento;
+                $cliente->ComunidadID = $request->ComunidadID; // Asignar el valor del campo ComunidadID
                 $cliente->Identificacion = $request->documento;
                 $cliente->ExpedidaEn = mb_convert_case($request->lugar_expedicion, MB_CASE_TITLE, "UTF-8");
                 $cliente->NombreBeneficiario = mb_convert_case($request->nombres, MB_CASE_TITLE, "UTF-8");
@@ -170,6 +303,7 @@ class ClientesController extends Controller
                 $cliente->genero = $request->genero;
                 $cliente->fecha_nacimiento = $request->fecha_nacimiento;
                 $cliente->lugar_nacimiento = mb_convert_case($request->lugar_nacimiento, MB_CASE_TITLE, "UTF-8");
+                
 
                 $cliente->pertenencia_etnica = $request->etnia;
                 $cliente->sexo = $request->sexo;
@@ -201,7 +335,6 @@ class ClientesController extends Controller
 
                 $cliente->Latitud = $coordenadas[0];
                 $cliente->Longitud = $coordenadas[1];           
-
                 $cliente->user_id = Auth::user()->id;
                 $cliente->ProyectoId = $request->proyecto;
                 $cliente->PlanComercial = $request->plan_internet;
@@ -426,7 +559,7 @@ class ClientesController extends Controller
                 $cliente->municipio_id = $dato->ubicacion->municipio->MunicipioId;
                 $cliente->save();
             }*/
-
+            
             $cliente = null;
 
             /*if (Auth::user()->hasRole('vendedor')) {
@@ -443,6 +576,39 @@ class ClientesController extends Controller
             }*/
 
             $cliente = Cliente::findOrFail($id);
+            // Consultar el nombre de la comunidad
+            $comunidadNombre = DB::table('comunidades')
+                ->where('ComunidadID', $cliente->ComunidadID)
+                ->value('nombre_comunidad');
+                        // Consultar el EstructuraID relacionado con la comunidad
+            $estructuraID = DB::table('comunidades')
+            ->where('ComunidadID', $cliente->ComunidadID)
+            ->value('EstructuraID');
+
+            // Consultar el tipo de usuario del cliente utilizando ClienteId
+            $tipoUsuario = DB::table('clientes')
+            ->where('ClienteId', $cliente->ClienteId)
+            ->value('tipo_servicio');
+            $nombreUsuario = $tipoUsuario;
+
+            $tipoInmueble = DB::table('clientes')
+            ->where('ClienteId', $cliente->ClienteId)
+            ->value('inmueble');
+
+            $tipoComunidad = DB::table('clientes')
+            ->where('ClienteId', $cliente->ClienteId)
+            ->value('tipo_comunidad');
+            
+            $nombreComunidad = $tipoComunidad;
+
+            // Si el tipo_servicio es un nodo_id, buscar su NombreNodo
+            if (is_numeric($tipoUsuario)) {
+                $nombreUsuario = DB::table('NODOS')
+                    ->where('nodo_id', $tipoUsuario)
+                    ->value('NombreNodo') ?? 'Nodo no encontrado';
+            }            
+            
+       
 
             $mantenimimientos_masivos = MantenimientoCliente::with('mantenimiento')->where('ClienteId', $cliente->ClienteId)
             ->whereHas('mantenimiento', function ($query){
@@ -473,7 +639,7 @@ class ClientesController extends Controller
 
             $planes = $this->listar($cliente->ProyectoId, $cliente->Estrato, $cliente->municipio_id);
 
-            return view('adminlte::clientes.show', compact('cliente', 'motivos_rechazo', 'vendedores', 'planes', 'recaudos', 'mantenimimientos_masivos'));
+            return view('adminlte::clientes.show', compact('cliente','comunidadNombre','estructuraID', 'motivos_rechazo', 'vendedores', 'planes', 'recaudos', 'mantenimimientos_masivos', 'tipoUsuario','nombreUsuario'));
         }else{
             abort(403);
         }
@@ -486,96 +652,65 @@ class ClientesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function comunidad()
+    {
+        return $this->belongsTo(Comunidad::class, 'ComunidadID');
+    }    
+
     public function edit($id)
     {
         if (Auth::user()->can('clientes-actualizar')) {
-
             $cliente = Cliente::findOrFail($id);
+
+            // Agregar consulta para obtener las comunidades
+            $comunidades = DB::table('comunidades')->select('ComunidadID', 'nombre_comunidad')->get();
+            // Obtener nodos disponibles
+            $nodos = DB::table('NODOS')->select('nodo_id', 'NombreNodo', 'tipo_conexion', 'estado')->get();
+
+
+
             $proyectos = Proyecto::select('ProyectoID', 'NumeroDeProyecto')->get();
             $departamentos = Departamento::where('Status', 'A')->get();
             $tipo_beneficiario = (isset($cliente->proyecto->tipos_beneficiarios)) ? $cliente->proyecto->tipos_beneficiarios : array();
-            $genero = array(array('sigla' => 'M' , 'valor' => 'Masculino' ),
-                            array('sigla' => 'F' , 'valor' => 'Femenino' ),
-                            array('sigla' => 'T' , 'valor' => 'Transgénero')
-                            );
-            $etnia = array('Mulato','Indigena','Negra','Afro','Palenquera','Raizal','Gitanos - Rom','Mestiza','Sin Informacion');
-            $sexo = array('Hembra', 'Macho','Intersexual', 'Sin informacion');
+            $genero = array(array('sigla' => 'M', 'valor' => 'Masculino'),
+                            array('sigla' => 'F', 'valor' => 'Femenino'),
+                            array('sigla' => 'T', 'valor' => 'Transgénero'));
+            $etnia = array('Mulato', 'Indigena', 'Negra', 'Afro', 'Palenquera', 'Raizal', 'Gitanos - Rom', 'Mestiza', 'Sin Informacion');
+            $sexo = array('Hembra', 'Macho', 'Intersexual', 'Sin informacion');
             $orientacion_sexual = array('Heterosexual', 'Homosexual', 'Bisexual', 'Sin informacion');
-            $nivel_estudios = array('Preescolar', 'Basica','Media', 'Superior pregrado', 'Superior posgrado','Sin informacion');
+            $nivel_estudios = array('Preescolar', 'Basica', 'Media', 'Superior pregrado', 'Superior posgrado', 'Sin informacion');
             $discapacidad = array('Visual', 'Auditiva', 'Fisica', 'Cognitiva-Intelectual', 'Psicosocial', 'Multiple', 'Sin discapacidad');
             $tipo_vivienda = array('Arrendada', 'Familiar', 'Propia');
-            $estados = array('ACTIVO', 'INACTIVO','EN INSTALACION','TRASLADO','PENDIENTE', 'RECHAZADO');
+            $estados = array('ACTIVO', 'INACTIVO', 'EN INSTALACION', 'TRASLADO', 'PENDIENTE', 'RECHAZADO');
             $zonas = ['RURAL', 'URBANA'];
-            $localidades = ['CORREGIMIENTO', 'INSPECCIÓN','SECTOR-URBANO','VEREDA'];
-            
-            $clasificacion = array('WISPER',' NO SUBSANABLE', 'CASMOT', 'DIALNET');
-
-            $estratos = [0,1,2,3,4,5,6];
+            $localidades = ['CORREGIMIENTO', 'INSPECCIÓN', 'SECTOR-URBANO', 'VEREDA'];
+            $clasificacion = array('WISPER', ' NO SUBSANABLE', 'CASMOT', 'DIALNET');
+            $estratos = [0, 1, 2, 3, 4, 5, 6];
 
             return view('adminlte::clientes.edit', compact(
-                'cliente', 
-                'proyectos', 
-                'departamentos', 
-                'tipo_beneficiario', 
-                'genero', 
-                'etnia', 
+                'cliente',
+                'proyectos',
+                'departamentos',
+                'tipo_beneficiario',
+                'genero',
+                'etnia',
                 'sexo',
                 'orientacion_sexual',
-                'nivel_estudios', 
-                'discapacidad', 
-                'tipo_vivienda', 
+                'nivel_estudios',
+                'discapacidad',
+                'tipo_vivienda',
                 'estados',
-                'clasificacion', 
+                'clasificacion',
                 'zonas',
                 'localidades',
-                'estratos'
+                'estratos',
+                'comunidades', // Pasamos las comunidades a la vista
+                'nodos'       // Nodos disponibles
             ));
-
-        }else{
+        } else {
             abort(403);
         }
     }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function subsanar(Request $request, $id)
-    {
-        if (Auth::user()->can('clientes-subsanar')){
-            $this->validate(request(),[
-                'estado' => 'required'
-            ]);
-            
-            if ($request->estado == 'PENDIENTE') {
-
-                $pendientes = ArchivoCliente::where([['estado', 'RECHAZADO'], ['ClienteId', $id]])->count();
-
-                if ($pendientes == 0) {
-                    $cliente = Cliente::find($id);
-                    $cliente->Status = $request->estado;
-
-                    if($cliente->save()){
-                        return redirect()->route('clientes.index')->with('success', 'información Actualizada');
-                    }else{
-                        return redirect()->route('clientes.show', $id)->with('success', 'Error al actualizar estado del cliente!');
-                    }
-                }else{
-                    return redirect()->route('clientes.show', $id)->with('warning', 'Aún tiene archivos por subsanar.');
-                }
-                
-            }else{
-                return redirect()->route('clientes.show', $id)->with('error', 'El estado seleccionado debe ser PENDIENTE.');
-            }
-        }else{
-            abort(403);
-        }
-        
-    }
-
     /**
      * Update the specified resource in storage.
      *
@@ -585,95 +720,150 @@ class ClientesController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         if (Auth::user()->can('clientes-actualizar')) {
-
-            $this->validate(request(),[
+            $this->validate($request, [
                 'nombres' => 'required',
                 'apellidos' => 'required',
-                'lugar_expedicion' => 'required',            
+                'lugar_expedicion' => 'required',
                 'genero' => 'required',
                 'fecha_nacimiento' => 'required',
-                'lugar_nacimiento' => 'required',          
-                'celular' => 'required',            
-                'CorreoElectronico' => 'required|email',            
-                'direccion' => 'required',            
+                'lugar_nacimiento' => 'required',
+                'celular' => 'required',
+                'CorreoElectronico' => 'required|email',
+                'direccion' => 'required',
                 'estrato' => 'required',
                 'tipo_vivienda' => 'required',
                 'municipio' => 'required',
-                
                 'etnia' => 'required',
                 'sexo' => 'required',
                 'orientacion_sexual' => 'required',
                 'nivel_estudios' => 'required',
-                'discapacidad' => 'required'            
+                'discapacidad' => 'required',
+                'TipoNodo' => 'nullable|exists:NODOS,nodo_id',// Validación para el nodo seleccionado
+                'ComunidadID' => 'nullable|exists:comunidades,ComunidadID',// Validación para el campo ComunidadID
             ]);
-
-            //asignamos todos los datos que se envian por post
+    
+            // Obtener el cliente actual
             $cliente = Cliente::find($id);
-            $cliente->NombreBeneficiario = mb_convert_case($request->nombres, MB_CASE_TITLE, "UTF-8");
-            $cliente->Apellidos = mb_convert_case($request->apellidos, MB_CASE_TITLE, "UTF-8");
-            $cliente->tipo_beneficiario = $request->tipo_beneficiario;
-            
-            $cliente->ExpedidaEn = mb_convert_case($request->lugar_expedicion, MB_CASE_TITLE, "UTF-8");
-            
-            $cliente->genero = $request->genero;
-            $cliente->fecha_nacimiento = $request->fecha_nacimiento;
-            $cliente->lugar_nacimiento = mb_convert_case($request->lugar_nacimiento, MB_CASE_TITLE, "UTF-8");
+    
+            DB::transaction(function () use ($request, $cliente) {
+            // Caso 1: Cambio de HOGAR en "Tipo de Comunidad de Conectividad" a otro tipo
+            if ($cliente->tipo_comunidad === 'HOGAR' && $request->tipo_comunidad !== 'HOGAR') {
+                // Incrementar 1 unidad en la comunidad anterior
+                DB::table('comunidades')
+                    ->where('ComunidadID', $cliente->ComunidadID)
+                    ->increment('HogaresConectar', 1);
 
-            $cliente->pertenencia_etnica = $request->etnia;
-            $cliente->sexo = $request->sexo;
-            $cliente->orientacion_sexual = $request->orientacion_sexual;
-            $cliente->nivel_estudios = $request->nivel_estudios;
-            $cliente->discapacidad = $request->discapacidad;
-            
-            $cliente->TelefonoDeContactoFijo = $request->telefono;
-            $cliente->TelefonoDeContactoMovil = $request->celular;
-            $cliente->CorreoElectronico = strtolower($request->CorreoElectronico);
+                // Limpiar la comunidad en el cliente (opcional)
+                $cliente->ComunidadID = null;
+                $cliente->tipo_comunidad = null; // Limpiar el tipo de comunidad
+            }
 
-            if (!empty($request->direccion)) {
+            // Caso 2: Cambio de otro tipo de comunidad a HOGAR en "Tipo de Comunidad de Conectividad"
+            if ($cliente->tipo_comunidad !== 'HOGAR' && $request->tipo_comunidad === 'HOGAR') {
+                // Descontar 1 unidad en la nueva comunidad
+                DB::table('comunidades')
+                    ->where('ComunidadID', $request->ComunidadID)
+                    ->decrement('HogaresConectar', 1);
+
+                // Actualizar la ComunidadID y el tipo de comunidad en el cliente
+                $cliente->ComunidadID = $request->ComunidadID;
+                $cliente->tipo_comunidad = $request->tipo_comunidad;
+            }
+
+            // Caso 3: Si ya era HOGAR en "Tipo de Comunidad de Conectividad" y solo cambia de comunidad
+            if ($cliente->tipo_comunidad === 'HOGAR' && $request->tipo_comunidad === 'HOGAR') {
+                if ($cliente->ComunidadID != $request->ComunidadID) {
+                    // Incrementar hogares disponibles en la comunidad anterior
+                    DB::table('comunidades')
+                        ->where('ComunidadID', $cliente->ComunidadID)
+                        ->increment('HogaresConectar', 1);
+
+                    // Decrementar hogares disponibles en la nueva comunidad
+                    DB::table('comunidades')
+                        ->where('ComunidadID', $request->ComunidadID)
+                        ->decrement('HogaresConectar', 1);
+
+                    // Actualizar la ComunidadID en el cliente
+                    $cliente->ComunidadID = $request->ComunidadID;
+                }
+            }
+
+/* 
+// **Caso 1:** Cuando se crea el usuario y se asigna un nodo
+if ($cliente->nodo_id === null && $request->nodo_id !== null) {
+    // Incrementar el contador en el nodo asignado
+    DB::table('NODOS')
+        ->where('nodo_id', $request->nodo_id)
+        ->increment('estado', 1);
+
+    // Actualizar el nodo_id en el cliente
+    $cliente->nodo_id = $request->nodo_id;
+}
+
+// **Caso 2:** Cambio de nodo
+if ($cliente->nodo_id !== null && $cliente->nodo_id !== $request->nodo_id) {
+    // Decrementar el contador en el nodo anterior
+    DB::table('NODOS')
+        ->where('nodo_id', $cliente->nodo_id)
+        ->decrement('estado', 1);
+
+    // Incrementar el contador en el nuevo nodo
+    DB::table('NODOS')
+        ->where('nodo_id', $request->nodo_id)
+        ->increment('estado', 1);
+
+    // Actualizar el nodo_id en el cliente
+    $cliente->nodo_id = $request->nodo_id;
+}
+
+// **Caso 3:** Cuando el usuario no cambia de nodo
+if ($cliente->nodo_id === $request->nodo_id) {
+    // No se realiza ninguna acción en este caso
+}
+ */
+
+
+                
+    
+                // Actualizar otros datos del cliente
+                $cliente->NombreBeneficiario = mb_convert_case($request->nombres, MB_CASE_TITLE, "UTF-8");
+                $cliente->Apellidos = mb_convert_case($request->apellidos, MB_CASE_TITLE, "UTF-8");
+                $cliente->tipo_beneficiario = $request->tipo_beneficiario;
+                $cliente->ExpedidaEn = mb_convert_case($request->lugar_expedicion, MB_CASE_TITLE, "UTF-8");
+                $cliente->genero = $request->genero;
+                $cliente->fecha_nacimiento = $request->fecha_nacimiento;
+                $cliente->lugar_nacimiento = mb_convert_case($request->lugar_nacimiento, MB_CASE_TITLE, "UTF-8");
+                $cliente->pertenencia_etnica = $request->etnia;
+                $cliente->sexo = $request->sexo;
+                $cliente->orientacion_sexual = $request->orientacion_sexual;
+                $cliente->nivel_estudios = $request->nivel_estudios;
+                $cliente->discapacidad = $request->discapacidad;
+                $cliente->TelefonoDeContactoFijo = $request->telefono;
+                $cliente->TelefonoDeContactoMovil = $request->celular;
+                $cliente->CorreoElectronico = strtolower($request->CorreoElectronico);
                 $cliente->DireccionDeCorrespondencia = $request->direccion;
-            }
-
-            $cliente->direccion_recibo = $request->direccion_recibo;
-            
-            
-            $cliente->Barrio = $request->barrio;
-            $cliente->NombreEdificio_o_Conjunto = $request->urbanizacion;
-            $cliente->zona = $request->zona;
-            $cliente->localidad = $request->localidad;
-
-            $cliente->Estrato = $request->estrato;
-            $cliente->RelacionConElPredio = $request->tipo_vivienda;
-            $cliente->municipio_id = $request->municipio;
-
-            if (Auth::user()->hasRole(['admin', 'aux-desarrollo'])){
-                $cliente->Status = $request->estado;
-            }
-
-
-            if (!empty($request->coordenadas)) {
-                $coordenadas = explode(',', $request->coordenadas);
-
-                $cliente->Latitud = $coordenadas[0];
-                $cliente->Longitud = $coordenadas[1];
-            } 
-
-            $cliente->ProyectoId = $request->proyecto;
-            $cliente->Clasificacion = $request->clasificacion;     
-
-
-            if ($cliente->save()) {
-                return redirect()->route('clientes.show', $id)->with('success', 'Cliente actualizado');
-            }else{
-                return redirect()->route('clientes.show', $id)->with('error', 'Error al actualizar');
-            }
-        }else{
+                $cliente->direccion_recibo = $request->direccion_recibo;
+                $cliente->Barrio = $request->barrio;
+                $cliente->NombreEdificio_o_Conjunto = $request->urbanizacion;
+                $cliente->zona = $request->zona;
+                $cliente->localidad = $request->localidad;
+                $cliente->Estrato = $request->estrato;
+                $cliente->RelacionConElPredio = $request->tipo_vivienda;
+                $cliente->municipio_id = $request->municipio;
+                $cliente->ProyectoId = $request->proyecto;
+                $cliente->Clasificacion = $request->clasificacion;
+                $cliente->ComunidadID = $request->ComunidadID;
+    
+                // Guardar cambios en el cliente
+                $cliente->save();
+            });
+    
+            return redirect()->route('clientes.show', $id)->with('success', 'Cliente actualizado correctamente.');
+        } else {
             abort(403);
         }
-
     }
-
     /**
      * Remove the specified resource from storage.
      *

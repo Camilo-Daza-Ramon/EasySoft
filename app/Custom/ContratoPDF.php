@@ -28,7 +28,7 @@ class ContratoPDF extends Fpdf
 
 	    $this->SetTextColor(255,255,255);
 	    $this->SetFont('calibri','',14);
-
+		
 	    $this->SetXY(10,5);
 	    $this->MultiCell(90,8, utf8_decode("CONTRATO ÚNICO\nDE SERVICIOS FIJOS"),0, 'C', true);
 	    $this->Image('img/amigored1.png', 10 ,5.5, 26 , 0,'PNG');
@@ -71,7 +71,7 @@ class ContratoPDF extends Fpdf
 	    $this->Line($x,($y + 4),($x + 4),$y);
 	    $this->Ln(5);
 
-	    $this->MultiCell(90,4, utf8_decode("Servicios adicionales ______________________________ Usted se compromete a pagar oportunamente el precio acordado.\nEl servicio se activará a más tardar el día ___/___ /___. "),0, 'J', false);
+	    $this->MultiCell(90,4, utf8_decode("NADA QUE HACER ______________________________ Usted se compromete a pagar oportunamente el precio acordado.\nEl servicio se activará a más tardar el día ___/___ /___. "),0, 'J', false);
 	    $this->Ln(3);
 
 	    $this->SetTextColor(255,255,255);
