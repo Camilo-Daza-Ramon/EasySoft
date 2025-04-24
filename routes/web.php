@@ -13,9 +13,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index']);
 
 Route::group(['middleware' => 'auth'], function () {
 	Route::get('clientes/{id}/edit', 'ClientesController@edit')->name('clientes.edit');
