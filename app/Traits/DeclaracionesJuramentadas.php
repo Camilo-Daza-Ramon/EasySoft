@@ -15,10 +15,14 @@ trait DeclaracionesJuramentadas {
 
         $pdf = new Declaracion('P','mm',array(215.9,279.4)); 
 
-        $pdf->AddFont('calibri','','calibri.php');
-        $pdf->AddFont('futura-bdcn-bt-bold','','futura-bdcn-bt-bold.php');
-        $pdf->AddFont('futura-md-bt','','futura-md-bt.php');
-        $pdf->AddFont('futura-md-bt-bold','', 'futura-md-bt-bold.php');
+        $pdf->AddFont('calibri', '', 'calibri.php'); // Calibri ya está disponible
+        $pdf->AddFont('Futura BdCn BT Bold', '', 'Futura BdCn BT Bold.php'); // Ajustado al archivo existente
+        $pdf->AddFont('Futura Md BT Bold', '', 'Futura Md BT Bold.php'); // Ajustado al archivo existente
+        $pdf->AddFont('futura-md-bt', '', 'futura-md-bt.php'); // Ajustado al archivo existente
+
+        $pdf->SetFont('Futura BdCn BT Bold', '', 12); // Correcto
+        $pdf->SetFont('Futura Md BT Bold', '', 12); // Correcto
+        $pdf->SetFont('futura-md-bt', '', 12); // Correcto
 
         $pdf->AliasNbPages();
         
@@ -45,10 +49,14 @@ trait DeclaracionesJuramentadas {
 
         $pdf = new DeclaracionPDF('P','mm',array(215.9,279.4));
               
-        $pdf->AddFont('calibri','','calibri.php');
-        $pdf->AddFont('futura-bdcn-bt-bold','','futura-bdcn-bt-bold.php');
-        $pdf->AddFont('futura-md-bt','','futura-md-bt.php');
-        $pdf->AddFont('futura-md-bt-bold','', 'futura-md-bt-bold.php');
+        $pdf->AddFont('calibri', '', 'calibri.php'); // Calibri ya está disponible
+        $pdf->AddFont('Futura BdCn BT Bold', '', 'Futura BdCn BT Bold.php'); // Ajustado al archivo existente
+        $pdf->AddFont('Futura Md BT Bold', '', 'Futura Md BT Bold.php'); // Ajustado al archivo existente
+        $pdf->AddFont('futura-md-bt', '', 'futura-md-bt.php'); // Ajustado al archivo existente
+
+        $pdf->SetFont('Futura BdCn BT Bold', '', 12); // Correcto
+        $pdf->SetFont('Futura Md BT Bold', '', 12); // Correcto
+        $pdf->SetFont('futura-md-bt', '', 12); // Correcto
 
         $pdf->AliasNbPages();
         
@@ -77,10 +85,14 @@ trait DeclaracionesJuramentadas {
         
         $pdf = new Declaracion873('P','mm',array(215.9,279.4));
         
-        $pdf->AddFont('calibri','','calibri.php');
-        $pdf->AddFont('futura-bdcn-bt-bold','','futura-bdcn-bt-bold.php');
-        $pdf->AddFont('futura-md-bt','','futura-md-bt.php');
-        $pdf->AddFont('futura-md-bt-bold','', 'futura-md-bt-bold.php');
+        $pdf->AddFont('calibri', '', 'calibri.php'); // Calibri ya está disponible
+        $pdf->AddFont('Futura BdCn BT Bold', '', 'Futura BdCn BT Bold.php'); // Ajustado al archivo existente
+        $pdf->AddFont('Futura Md BT Bold', '', 'Futura Md BT Bold.php'); // Ajustado al archivo existente
+        $pdf->AddFont('futura-md-bt', '', 'futura-md-bt.php'); // Ajustado al archivo existente
+
+        $pdf->SetFont('Futura BdCn BT Bold', '', 12); // Correcto
+        $pdf->SetFont('Futura Md BT Bold', '', 12); // Correcto
+        $pdf->SetFont('futura-md-bt', '', 12); // Correcto
 
         $pdf->AliasNbPages();
         

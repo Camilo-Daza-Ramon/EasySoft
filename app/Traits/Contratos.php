@@ -15,10 +15,10 @@ trait Contratos {
 
         $pdf = new AmigoRed('P','mm',array(205.91,347.3));
         
-        $pdf->AddFont('calibri','','calibri.php');
-        $pdf->AddFont('futura-bdcn-bt-bold','','futura-bdcn-bt-bold.php');
-        $pdf->AddFont('futura-md-bt','','futura-md-bt.php');
-        $pdf->AddFont('futura-md-bt-bold','', 'futura-md-bt-bold.php');
+        $pdf->AddFont('calibri', '', 'calibri.php'); // Calibri ya está disponible
+        $pdf->AddFont('Futura BdCn BT Bold', '', 'Futura BdCn BT Bold.php'); // Ajustado al archivo existente
+        $pdf->AddFont('Futura Md BT Bold', '', 'Futura Md BT Bold.php'); // Ajustado al archivo existente
+        $pdf->AddFont('futura-md-bt', '', 'futura-md-bt.php'); // Ajustado al archivo existente
 
         $pdf->AliasNbPages();
 
@@ -75,10 +75,10 @@ trait Contratos {
     public function lp015($destino, $data, $ruta){
 
         $pdf = new ContratoPDF('P','mm',array(205.91,347.3));
-        $pdf->AddFont('calibri','','calibri.php');
-        $pdf->AddFont('futura-bdcn-bt-bold','','futura-bdcn-bt-bold.php');
-        $pdf->AddFont('futura-md-bt','','futura-md-bt.php');
-        $pdf->AddFont('futura-md-bt-bold','', 'futura-md-bt-bold.php');
+        $pdf->AddFont('calibri', '', 'calibri.php'); // Calibri ya está disponible
+        $pdf->AddFont('Futura BdCn BT Bold', '', 'Futura BdCn BT Bold.php'); // Ajustado al archivo existente
+        $pdf->AddFont('Futura Md BT Bold', '', 'Futura Md BT Bold.php'); // Ajustado al archivo existente
+        $pdf->AddFont('futura-md-bt', '', 'futura-md-bt.php'); // Ajustado al archivo existente
 
         $pdf->AliasNbPages();
 
@@ -133,10 +133,10 @@ trait Contratos {
     public function lp018($destino, $data, $ruta){
         $pdf = new Contrato873PDF('P','mm',array(205.91,347.3));
 
-        $pdf->AddFont('calibri','','calibri.php');
-        $pdf->AddFont('futura-bdcn-bt-bold','','futura-bdcn-bt-bold.php');
-        $pdf->AddFont('futura-md-bt','','futura-md-bt.php');
-        $pdf->AddFont('futura-md-bt-bold','', 'futura-md-bt-bold.php');
+        $pdf->AddFont('calibri', '', 'calibri.php'); // Calibri ya está disponible
+        $pdf->AddFont('Futura BdCn BT Bold', '', 'Futura BdCn BT Bold.php'); // Ajustado al archivo existente
+        $pdf->AddFont('Futura Md BT Bold', '', 'Futura Md BT Bold.php'); // Ajustado al archivo existente
+        $pdf->AddFont('futura-md-bt', '', 'futura-md-bt.php'); // Ajustado al archivo existente
 
         $pdf->AliasNbPages();
 
