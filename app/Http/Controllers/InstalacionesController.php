@@ -33,6 +33,65 @@ class InstalacionesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+
+     public function guardarInstalacion(Request $request) { //FUNCION PARA GUARDAR LOS DATOS DE LA INSTALACION DEL PROYECTO GUAJIRA
+        // Validar los datos enviados
+        $request->validate([
+            'TipoConexion' => 'required|string|max:255',
+            'EstructuraInstalacion' => 'nullable|string|max:255',
+            // Campos del formulario para instalacion por Cableado
+            'RouterSerial' => 'nullable|string|max:255',
+            'CableUTP' => 'nullable|integer|min:0',
+            'SwitchPuerto' => 'nullable|integer|min:1|max:16',
+            // Campos del formulario para instalacion Inhalambrica para los PAC-CC y NODOS
+            'Paneles' => 'nullable|integer|min:0|max:2',
+            'PotenciaPaneles' => 'nullable|integer|in:580,630',
+            'ControladorSolar' => 'nullable|interger|min:0|max:1',
+            'AccesPoint'=> 'nullable|integer|min:0|max:1',
+            'SwitchPOE' => 'nullable|integer|min:0|max:1',
+            'Switch' => 'nullable|integer|min:0|max:2',
+            'Bateria' => 'nullable|integer|min:0|max:1',
+            'Router' => 'nullable|integer|min:0|max:1',
+            'ConversorDCDC' => 'nullable|integer|min:0|max:1',
+            'AntenaSectorial' => 'nullable|integer|min:0|max:4',
+            'AntenaReceptora' => 'nullable|integer|min:0|max:1',
+            'CamaraIP' => 'nullable|integer|min:0|max:2',
+            'CerboGX' => 'nullable|integer|min:0|max:1',
+            'Inversor' => 'nullable|integer|min:0|max:1',
+        ]);
+    
+        // Guardar los datos en la base de datos
+        ClientesInstalaciones::create([
+            'TipoConexion' => $request->input('TipoConexion'),
+            'EstructuraInstalacion' => $request->input('EstructuraInstalacion'),
+            // Guardar campos del formulario para instalacion por Cableado
+            'RouterSerial' => $request->input('RouterSerial'),
+            'CableUTP' => $request->input('CableUTP'),
+            'SwitchPuerto' => $request->input('SwitchPuerto'),
+            //Guardar los campor del formulario para instalacion Inhalambrica para los PAC-CC y NODOS
+            'Paneles' => $request->input('Paneles'),
+            'PotenciaPaneles' => $request->input('PotenciaPaneles'),
+            'ControladorSolar' => $request->input('ControladorSolar'),
+            'AccesPoint'=> $request->input('AccesPoint'),
+            'SwitchPOE' => $request->input('SwitchPOE'),
+            'Switch' => $request->input('Switch'),
+            'Bateria' => $request->input('Bateria'),
+            'Router' => $request->input('Router'),
+            'ConversorDCDC' => $request->input('ConversorDCDC'),
+            'AntenaSectorial' => $request->input('AntenaSectorial'),
+            'AntenaReceptora' => $request->input('AntenaReceptora'),
+            'CamaraIP' => $request->input('CamaraIP'),
+            'CerboGX' => $request->input('CerboGX'),
+            'Inversor' => $request->input('Inversor'),
+        ]);
+    
+        // Redirigir con mensaje de éxito
+        return redirect()->back()->with('success', 'Datos guardados correctamente.');
+    }
+
+
+
     public function index(Request $request)
     {
 
@@ -1136,6 +1195,8 @@ class InstalacionesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+
     public function pdf($id)
     {
         $data = [
@@ -1145,6 +1206,27 @@ class InstalacionesController extends Controller
             'fecha_instalacion' => '',
             'departamento' => '',
             'municipio' => '',
+
+            // Datos adicionales de instalación de los usuarios del Proyecto Guajira
+            'TipoConexion' => '',
+            'EstructuraInstalacion' => '',
+            'RouterSerial' => '',
+            'CableUTP' => '',
+            'SwitchPuerto' => '',
+            'Paneles' => '',
+            'PotenciaPaneles' => '',
+            'ControladorSolar' => '',
+            'AccesPoint'=> '',
+            'SwitchPOE' => '',
+            'Switch' => '',
+            'Bateria' => '',
+            'Router' => '',
+            'ConversorDCDC' => '',
+            'AntenaSectorial' => '',
+            'AntenaReceptora' => '',
+            'CamaraIP' => '',
+            'CerboGX' => '',
+            'Inversor' => '',
 
             'nombre_tecnico' => '',
             'cedula_tecnico' => '',
@@ -1193,6 +1275,30 @@ class InstalacionesController extends Controller
         ];
 
         $instalacion = Instalacion::findOrFail($id);
+
+        // Verificar si el ProyectoId es 14
+        if ($instalacion->cliente->proyecto->NumeroDeProyecto == 14) {
+            // Agregar los datos específicos para ProyectoId == 14
+            $data['TipoConexion'] = $instalacion->TipoConexion;
+            $data['EstructuraInstalacion'] = $instalacion->EstructuraInstalacion;
+            $data['RouterSerial'] = $instalacion->RouterSerial;
+            $data['CableUTP'] = $instalacion->CableUTP;
+            $data['SwitchPuerto'] = $instalacion->SwitchPuerto;
+            $data['Paneles'] = $instalacion->Paneles;
+            $data['PotenciaPaneles'] = $instalacion->PotenciaPaneles;
+            $data['ControladorSolar'] = $instalacion->ControladorSolar;
+            $data['AccesPoint'] = $instalacion->AccesPoint;
+            $data['SwitchPOE'] = $instalacion->SwitchPOE;
+            $data['Switch'] = $instalacion->Switch;
+            $data['Bateria'] = $instalacion->Bateria;
+            $data['Router'] = $instalacion->Router;
+            $data['ConversorDCDC'] = $instalacion->ConversorDCDC;
+            $data['AntenaSectorial'] = $instalacion->AntenaSectorial;
+            $data['AntenaReceptora'] = $instalacion->AntenaReceptora;
+            $data['CamaraIP'] = $instalacion->CamaraIP;
+            $data['CerboGX'] = $instalacion->CerboGX;
+            $data['Inversor'] = $instalacion->Inversor;    
+        }
 
         $data['codigo_dane_municipio'] = $instalacion->cliente->municipio->CodigoDane;
 

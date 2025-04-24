@@ -60,7 +60,7 @@
 								</td>
 							</tr>
 
-							<tr>
+							<tr id="numeroProyecto" data-proyecto="{{$cliente->proyecto->NumeroDeProyecto}}">
 								<th>Proyecto</th>
 								<td>{{$cliente->proyecto->NumeroDeProyecto}}</td>
 							</tr>		        				
@@ -110,6 +110,7 @@
 	</div>
 
 
+{{--  Datos para la instalación --}}
 
 	<div class="row">		
 		<div class="col-md-12">
@@ -120,9 +121,185 @@
 				<form id="form-instalacion" action="{{route('instalaciones.store')}}" method="post">
 					{{csrf_field()}}
 					<input type="hidden" name="cliente_id" value="{{$cliente->ClienteId}}">
-					<div class="box-body">
+
+			{{--  Condicional dependiendo del tipo de proyecto --}}
+
+					@if($cliente->proyecto->ProyectoId != 14)
+					<div class="row col-md-12">
+						<div class="form-group col-md-3">
+							<label for="TipoConexion">Conexión</label>
+							<select class="form-control" name="TipoConexion" id="tipoConexion" required>
+								<option value="">Elija una conexión</option>
+								<option value="RADIO">Conexión Inalámbrica</option>
+								<option value="ONT">Fibra</option>
+								<option value="CABLEADO">Conexión Cableada</option>
+							</select>
+						</div>
+						<div class="form-group{{ $errors->has('coordenadas') ? ' has-error' : '' }} col-xs-12 col-md-4">
+							<label>Coordenadas</label>
+							<div class="input-group input-group">
+								<input type="text" name="coordenadas" id="coordenadas" placeholder="Coordenadas" class="form-control" autocomplete="off">
+								<span class="input-group-btn">
+									<button class="btn btn-info btn-flat" type="button" onclick="getUserPosition()"><i class="fa fa-map-marker"></i> Obtener</button>
+								</span>
+							</div>
+							<span class="help-block"></span>
+						</div>
+						<div class="form-group col-md-3" id="estructura-field" style="display: none;" >
+							<Label for="estructura-instalacion">Estructura de Instalación</Label>
+							<select class="form-control" name="EstructuraInstalacion" id="estructura-instalacion">
+								<option value="">Elija una estructura</option>
+								<option value="NODO-SECUNDARIO">NODO SECUNDARIO</option>
+								<option value="PAC-CC">PAC / CC</option>
+								<option value="HOGARES">HOGARES</option>
+							</select>
+						</div>
+
+					</div>
+
+					<div id="form-cableado"  class="visible" style="display: none;">
+						<div class="form-group col-xs-12 col-md-4">
+							<label  for="RouterSerial">Router (Serial)</label>
+							<input type="text" class="form-control" name="RouterSerial" placeholder="Serial Router"value=""  maxlength="20"  autocomplete="off">
+							<span class="help-block"></span>
+						</div>
+						<div class="form-group col-xs-12 col-md-4">
+							<label  for="RouterMarca">Marca del Router</label>
+							<input type="text" class="form-control" name="RouterMarca" placeholder="Marca del Router"value=""  maxlength="20"  autocomplete="off">
+							<span class="help-block"></span>
+						</div>
+						<div class="form-group{{ $errors->has('estado_equipo_pe') ? ' has-error' : '' }} col-md-3 col-xs-6">
+							<label>Estado del Router</label>
+							<select class="form-control" name="estado_equipo_pe" required>
+								<option value="">Elija una opcion</option>
+								@foreach($estados_otros as $estado_equipo)
+									<option>{{$estado_equipo}}</option>
+								@endforeach
+							</select>
+							<span class="help-block"></span>
+						</div> 
 						
-						<div class="row">
+						<div class="form-group col-md-3">
+							<label for="CableUTP" class="control-label col-xs-7 col-md-12">Cable UTP (Mtrs)</label>
+							<div class="col-xs-5 col-md-12 mb-2">
+								<input type="number" name="CableUTP" class="form-control" placeholder="Cant." value="" min="0">
+							</div>
+						</div>
+						<div class="form-group col-md-3">
+							<label for="SwitchPuerto" class="control-label col-xs-7 col-md-12">Switch (Puertos)</label>
+							<div class="col-xs-5 col-md-12 mb-2">
+								<input type="number" name="SwitchPuerto" class="form-control" placeholder="Número del Puerto" value="" min="1" max="16">
+							</div>
+						</div>
+						<div class="form-group col-md-12">
+							@include('adminlte::instalaciones.partials.formGuajira')
+							@include('adminlte::instalaciones.partials.evidencia.form')
+							@include('adminlte::partials.modal_show_archivos')
+							@include('adminlte::instalaciones.partials.firma.add')
+						</div>
+
+					</div>
+					<div class="box-body" id="formularioCableado" style="display: none;">
+
+						<div class="row" >
+							<div class="form-group{{ $errors->has('serial_ont') ? ' has-error' : '' }} col-xs-12 col-md-4">
+								<label>Serial ONT</label>
+								<input type="text" class="form-control" name="serial_ont" placeholder="Serial ONT"value=""  maxlength="20"  autocomplete="off">
+								<span class="help-block"></span>
+							</div>
+
+{{-- 							<div class="form-group{{ $errors->has('coordenadas') ? ' has-error' : '' }} col-xs-12 col-md-4">
+								<label>Coordenadas</label>
+								<div class="input-group input-group">
+									<input type="text" name="coordenadas" id="coordenadas" placeholder="Coordenadas" class="form-control" autocomplete="off">
+									<span class="input-group-btn">
+										<button class="btn btn-info btn-flat" type="button" onclick="getUserPosition()"><i class="fa fa-map-marker"></i> Obtener</button>
+									</span>
+								</div>
+								<span class="help-block"></span>
+							</div> --}}
+							<hr width="90%">
+						</div>
+
+						<div id="contenido_formulario" style="display:none;">
+							@include('adminlte::instalaciones.partials.formGuajira')
+						
+							@include('adminlte::instalaciones.partials.material.form')
+
+							@include('adminlte::instalaciones.partials.evidencia.form')
+
+							<div class="row  bg-blue">
+								<div class="col-md-12 text-center">
+									<h5>DATOS DE CONEXION FÍSICA</h5>
+								</div>    
+							</div>
+							<br>
+
+							<div class="row">
+							
+								<div class="form-group{{ $errors->has('caja') ? ' has-error' : '' }} col-md-3">
+									<label class="control-label col-xs-7 col-md-12">*Caja</label>
+									<div class="col-xs-5 col-md-12 mb-2">
+										<input type="number" name="caja" class="form-control" placeholder="Cant." value="" min="0" >
+									</div>
+								</div>
+
+								<div class="form-group{{ $errors->has('puerto') ? ' has-error' : '' }} col-md-3">
+									<label class="control-label col-xs-7 col-md-12">*Puerto</label>
+									<div class="col-xs-5 col-md-12 mb-2">
+										<input type="number" name="puerto" class="form-control" placeholder="Cant." value="" min="0">
+									</div>
+								</div>
+
+								<div class="form-group{{ $errors->has('sp_splitter') ? ' has-error' : '' }} col-md-3">
+									<label class="control-label col-xs-7 col-md-12">*SP Spliter</label>
+									<div class="col-xs-5 col-md-12 mb-2">
+										<input type="number" name="sp_splitter" class="form-control" placeholder="Cant." value="" min="0">
+									</div>
+								</div>
+
+
+								<div class="form-group{{ $errors->has('ss_splitter') ? ' has-error' : '' }} col-md-3">
+									<label class="control-label col-xs-7 col-md-12">*SS Spliter</label>
+									<div class="col-xs-5 col-md-12 mb-2">
+										<input type="number" name="ss_splitter" class="form-control" placeholder="Cant." value="" min="0">
+									</div>
+								</div>
+
+								<div class="form-group{{ $errors->has('tarjeta') ? ' has-error' : '' }} col-md-3">
+									<label class="control-label col-xs-7 col-md-12">*Tarjeta</label>
+									<div class="col-xs-5 col-md-12 mb-2">
+										<input type="number" name="tarjeta" class="form-control" placeholder="Cant." value="" min="0">
+									</div>
+								</div>
+
+								<div class="form-group{{ $errors->has('modulo') ? ' has-error' : '' }} col-md-3">
+									<label class="control-label col-xs-7 col-md-12">*Modulo</label>
+									<div class="col-xs-5 col-md-12 mb-2">
+										<input type="number" name="modulo" class="form-control" placeholder="Cant." value="" min="0">
+									</div>
+								</div>
+								<hr width="90%">
+							</div>
+
+						</div>
+					</div>
+					<div class="form-group col-md-12" id="formulario-inal-nodo" style="display: none;">
+						@include('adminlte::instalaciones.partials.material.formInalNODO')
+					</div>
+					<div class="form-group col-md-12" id="formulario-inal-PAC-CC" style="display: none;">
+						@include('adminlte::instalaciones.partials.material.formInaPAC-CC')
+					</div>
+					<div class="form-group col-md-12" id="formulario-inal-HOGAR" style="display: none;">
+						@include('adminlte::instalaciones.partials.material.formInalHOGAR')
+					</div>
+					<div class="box-footer">
+						<button type="submit" id ="btnAgregar" class="btn btn-success pull-right" disabled><i class="fa fa-floppy-o"></i>  Agregar</button>
+					</div>
+					@else
+					<div class="box-body" id="formularioCableado">
+
+						<div class="row" >
 							<div class="form-group{{ $errors->has('serial_ont') ? ' has-error' : '' }} col-xs-12 col-md-4">
 								<label>Serial ONT</label>
 								<input type="text" class="form-control" name="serial_ont" placeholder="Serial ONT"value=""  maxlength="20" required autocomplete="off">
@@ -213,12 +390,11 @@
 							</div>
 
 						</div>
-					</div>				
-					
+					</div>	
 					<div class="box-footer">
 						<button type="submit" id ="btnAgregar" class="btn btn-success pull-right" disabled><i class="fa fa-floppy-o"></i>  Agregar</button>
 					</div>
-				
+					@endif
 				</form>
 
 				<div id="result"></div>
@@ -288,130 +464,218 @@
 			$('#addFirma').modal('hide');
 		});
 
-		$('input[name="serial_ont"]').on("focusout", function(){
+		// Script para habilitar el botón "Agregar" dependiendo del tipo de conexión y la validación del Serial ONT 
+		// (FALTA ACOMODAR QUE EL PROYECTO ==14)
+		$(document).ready(function() {
+			var proyectoId = $('#numeroProyecto').data('proyecto'); // Obtener ProyectoId desde el HTML
+			var tipoConexion = $('#tipoConexion'); // Seleccionar el campo tipoConexion
+			var serialONTInput = $('input[name="serial_ont"]');
+			var btnAgregar = $('#btnAgregar');
 
-			if($(this).val() != '' && $(this).val().length > 8) {		
+			// Mostrar valores iniciales en consola al cargar la página
+			console.log("ProyectoId (inicial):", proyectoId);
+			console.log("tipoConexion (inicial):", tipoConexion.val());
 
-				var parametros = {
-					serial : $(this).val(),
-					'_token' : $('input:hidden[name=_token]').val()             
-				};
+			// Mantener botón deshabilitado inicialmente
+			btnAgregar.prop('disabled', true);
 
-				$('input[name="serial_ont"]').parent().find('.help-block').empty();
+			// Actualizar el estado del botón y mostrar en consola al cambiar tipoConexion
+			tipoConexion.on('change', function() {
+				var conexionSeleccionada = $(this).val();
+				console.log("tipoConexion (seleccionada):", conexionSeleccionada);
 
-				$.post("/inventarios/ajax",parametros, function(data){
-					$('#ont-resultado').empty();
-
-					if (data.resultado == true) {
-						$('input[name="serial_ont"]').parent().addClass('has-success');
-						$('input[name="serial_ont"]').parent().removeClass('has-error');						
-						$('input[name="serial_ont"]').attr('readonly',true);
-						$('#contenido_formulario').show();
-						$('#btnAgregar').attr('disabled',false);
-						
-					}else{
-						$('input[name="serial_ont"]').parent().addClass('has-error');
-						$('input[name="serial_ont"]').parent().find('.help-block').append("<strong>"+data.resultado+"</strong>");
-
-						
-						
-						toastr.options.positionClass = 'toast-bottom-right';
-						toastr.warning(data.resultado);
-					}
-				});
-			}
-
-		});
-
-		let fibra_desde = $('input[name="fibra_drop_desde"]');
-		let fibra_hasta = $('input[name="fibra_drop_hasta"]');
-
-		const total_fibra = () => {
-			if((fibra_desde.val().length > 0 && fibra_desde.val() != '') && (fibra_hasta.val().length > 0 && fibra_hasta.val() != '')){
-				const total = (fibra_desde.val() - fibra_hasta.val());
-
-				if(total > 0){
-					$('.total_fibra').text(total + ' mts').addClass('text-success').removeClass('text-danger');
-				}else{
-					$('.total_fibra').text(total + ' mts').addClass('text-danger').removeClass('text-success');
+				// Si ProyectoId == 14 y tipoConexion no es ONT, habilitar el botón directamente
+				if (proyectoId != 14 && conexionSeleccionada !== "ONT") {
+					console.log("Habilitando botón: ProyectoId == 14 y tipoConexion != ONT");
+					btnAgregar.prop('disabled', false); // Habilitar el botón
+				} else {
+					console.log("Deshabilitando botón: Condiciones no cumplidas");
+					btnAgregar.prop('disabled', true); // Mantener deshabilitado hasta validar Serial ONT
 				}
-				
-			}else{
-				$('.total_fibra').text(0 + ' mts');
-			}
-		}
-
-		$('#form-instalacion').on('submit', function(event) {
-			event.preventDefault();
-
-			var f = $(this);
-			var formData = new FormData(this);
-			
-			if ($('select[name="pregunta_firma"]').val() == 'FIRMAR') {
-				formData.append('firma', firma);
-			}
-
-			if ($('select[name="pregunta_firma_tecnico"]').val() == 'FIRMAR') {
-				formData.append('firma_tecnico', firma_tecnico);
-			}else if ($('select[name="pregunta_firma_tecnico"]').val() == 'SUBIR FIRMA'){
-				formData.append('firma_tecnico', $('input[name="firma_tecnico"]')[0].files[0]);
-			}
-
-			$('#result').removeClass('overlay').empty();			
-			$('#result').addClass('overlay').append('<i class="fa fa-refresh fa-spin"></i>');
-
-
-			$.ajax({
-				url: "/instalaciones",
-				type: "post",
-				dataType: "json",
-				data: formData,
-				cache: false,
-				contentType: false,
-				processData: false
-			})
-			.done(function(res){
-
-				if(res['resultado'] == 'success'){                        
-					toastr.options.positionClass = 'toast-bottom-right';
-					toastr.success(res['mensaje']);
-
-					setTimeout(() => {
-						location.replace("/instalaciones/instalar");
-					}, "3000");
-
-
-				}else{
-
-					$('#result').removeClass('overlay').empty();
-
-					toastr.options.positionClass = 'toast-bottom-right';
-					toastr.error(res['mensaje']);
-				
-				}
-			}).fail(function( jqXHR, textStatus, errorThrown ) {
-				$('#result').removeClass('overlay').empty();
-
-				if(jqXHR.status == 422){
-
-					var objeto = JSON.parse(jqXHR.responseText);
-
-					$.each(objeto, function(index, respuestaObj){			                   
-						var padre = $('[name="' + index+'"]').parent();
-						padre.removeClass('has-success').addClass('has-error');
-						padre.find('.help-block').text(respuestaObj)
-						//padre.append('<span class="text-danger">' + respuestaObj +'</span>');
-					});
-
-					toastr.options.positionClass = 'toast-bottom-right';
-					toastr.error("Corrija los campos");
-				}else{
-					toastr.options.positionClass = 'toast-bottom-right';
-					toastr.error(errorThrown);
-				}                      
 			});
+
+			// Validación del Serial ONT (solo para conexiones ONT en el ProyectoId 14 y otros proyectos)
+			serialONTInput.on("focusout", function() {
+				var conexionSeleccionada = tipoConexion.val(); // Obtener tipoConexion seleccionado
+				console.log("Serial ONT ingresado:", $(this).val());
+				console.log("tipoConexion (validación):", conexionSeleccionada);
+
+				// Validar solo si tipoConexion == ONT y ProyectoId == 14
+				if (proyectoId != 14 && conexionSeleccionada === "ONT") {
+					if ($(this).val() != '' && $(this).val().length > 8) {        
+						var parametros = {
+							serial: $(this).val(),
+							'_token': $('input:hidden[name=_token]').val()
+						};
+
+						serialONTInput.parent().find('.help-block').empty();
+
+						$.post("/inventarios/ajax", parametros, function(data) {
+							console.log("Respuesta AJAX:", data);
+							$('#ont-resultado').empty();
+
+							if (data.resultado === true) {
+								serialONTInput.parent().addClass('has-success');
+								serialONTInput.parent().removeClass('has-error');
+								serialONTInput.attr('readonly', true);
+								$('#contenido_formulario').show();
+								btnAgregar.prop('disabled', false); // Habilitar el botón
+							} else {
+								serialONTInput.parent().addClass('has-error');
+								serialONTInput.parent().find('.help-block').append("<strong>" + data.resultado + "</strong>");
+								toastr.options.positionClass = 'toast-bottom-right';
+								toastr.warning(data.resultado);
+							}
+						});
+					}
+				}
+			});
+
+			// Forzar una verificación inicial en caso de que tipoConexion ya tenga valor
+			tipoConexion.trigger('change');
 		});
 		
+		/*Script para ocultar el forumario de las ONTS cuando se selecciona para radio enlace del proyecto Guajira*/
+					document.addEventListener('DOMContentLoaded', function () {
+						var selectConexion = document.getElementById('tipoConexion');
+						var formularioCableado = document.getElementById('formularioCableado');
+						var camposRequeridos = formularioCableado.querySelectorAll('[required]');
+						
+						// Verificar si el formulario existe (solo si ProyectoId es 14)
+						if (formularioCableado) {
+							formularioCableado.style.display = "none";
+							camposRequeridos.forEach(function (campo) {
+								campo.removeAttribute('required');
+							});
+
+								selectConexion.addEventListener('change', function () {
+									if (this.value === "ONT") {
+										formularioCableado.style.display = "block";
+										camposRequeridos.forEach(function (campo) {
+											campo.setAttribute('required', 'true');
+										});
+									} else {
+										formularioCableado.style.display = "none";
+										camposRequeridos.forEach(function (campo) {
+											campo.removeAttribute('required');
+										});
+									}
+								});
+							}
+						});
+
+						// Script para mostrar el formulario de instalación para CONEXION INALAMBRICA 
+						// Se utiliza el evento 'DOMContentLoaded' para asegurarse de que el DOM esté completamente cargado antes de ejecutar el script
+							document.addEventListener('DOMContentLoaded', function () { // Esperar a que el DOM esté listo
+							document.getElementById('tipoConexion').addEventListener('change', function () {
+								var estructuraField = document.getElementById('estructura-field');
+								var selectedValue = this.value; // Obtiene la opción seleccionada de la conexion
+
+								if (selectedValue == 'RADIO') { // Verifica si la CONEXION seleccionada es igual inhalambrica
+									estructuraField.style.display = 'block'; // Cambia directamente a display: block
+								} else {
+									estructuraField.style.display = 'none'; // Oculta el campo "Estructura"
+								}
+							});
+						});
+						// Script para mostrar el formulario de instalación de NODO SECUNDARIO
+
+						document.addEventListener('DOMContentLoaded', function () {
+							var selectEstructura = document.getElementById('estructura-instalacion'); 
+							var selectConexion = document.getElementById('tipoConexion'); 
+							var formularioNodo = document.getElementById('formulario-inal-nodo'); 
+
+							function verificarVisibilidad() {
+								var estructuraSeleccionada = selectEstructura.value;
+								var conexionSeleccionada = selectConexion.value;
+
+								// Mostrar solo si "NODO-SECUNDARIO" está en estructura y "RADIO" en conexión
+								if (estructuraSeleccionada === "NODO-SECUNDARIO" && conexionSeleccionada === "RADIO") {
+									formularioNodo.style.display = "block";
+								} else {
+									formularioNodo.style.display = "none";
+								}
+							}
+
+							// Verificar cuando cambie la estructura o la conexión
+							selectEstructura.addEventListener('change', verificarVisibilidad);
+							selectConexion.addEventListener('change', verificarVisibilidad);
+
+							// Verificación inicial al cargar la página
+							verificarVisibilidad();
+						});
+
+						// Script para mostrar el formulario de instalación de PAC y CC
+						document.addEventListener('DOMContentLoaded', function () {
+							var selectEstructura = document.getElementById('estructura-instalacion'); 
+							var selectConexion = document.getElementById('tipoConexion'); 
+							var formularioCableado = document.getElementById('formulario-inal-PAC-CC'); 
+
+							function verificarVisibilidad() {
+								var estructuraSeleccionada = selectEstructura.value;
+								var conexionSeleccionada = selectConexion.value;
+
+								// Mostrar solo si "PAC-CC" está en estructura y "RADIO" en conexión
+								if (estructuraSeleccionada === "PAC-CC" && conexionSeleccionada === "RADIO") {
+									formularioCableado.style.display = "block";
+								} else {
+									formularioCableado.style.display = "none";
+								}
+							}
+
+							// Verificar cuando cambie la estructura o la conexión
+							selectEstructura.addEventListener('change', verificarVisibilidad);
+							selectConexion.addEventListener('change', verificarVisibilidad);
+
+							// Verificación inicial al cargar la página
+							verificarVisibilidad();
+						});
+
+						document.addEventListener('DOMContentLoaded', function () { 
+							var selectEstructura = document.getElementById('estructura-instalacion'); 
+							var selectConexion = document.getElementById('tipoConexion'); 
+							var formularioHogar = document.getElementById('formulario-inal-HOGAR'); 
+
+							function verificarVisibilidad() {
+								var estructuraSeleccionada = selectEstructura.value;
+								var conexionSeleccionada = selectConexion.value;
+
+								if (estructuraSeleccionada === "HOGARES" && conexionSeleccionada === "RADIO") {
+									formularioHogar.style.display = "block"; // Mostrar el formulario
+								} else {
+									formularioHogar.style.display = "none"; // Ocultarlo si no cumple ambas condiciones
+								}
+							}
+
+							// Verificar cuando cambie la estructura o la conexión
+							selectEstructura.addEventListener('change', verificarVisibilidad);
+							selectConexion.addEventListener('change', verificarVisibilidad);
+
+							// Verificar al cargar la página
+							verificarVisibilidad();
+						});
+
+						// Script para mostrar el formulario de instalación para CONEXION CABLEADA
+
+						document.addEventListener('DOMContentLoaded', function () { 
+							var selectEstructura = document.getElementById('tipoConexion'); 
+							var formularioCableado = document.getElementById('form-cableado'); 
+
+							selectEstructura.addEventListener('change', function () {
+								var selectedValue = this.value;
+
+								if (selectedValue === "CABLEADO") {
+									formularioCableado.style.display = "block"; // Mostrar el formulario
+								} else {
+									formularioCableado.style.display = "none"; // Ocultarlo si no es HOGAR
+								}
+							});
+
+							// Verificación inicial al cargar la página
+							if (selectEstructura.value !== "CABLEADO") {
+								formularioCableado.style.display = "none";
+							}
+						});		
 	</script>
 	
 

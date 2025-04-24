@@ -319,7 +319,6 @@ Route::group(['middleware' => 'auth'], function () {
 	#INSTALACION - Exportar
 	Route::post('instalaciones/exportar', 'InstalacionesController@exportar')->name('instalaciones.exportar')->middleware('role:admin,administrativo,comercial,agente-noc,indicadores');
 
-
 	#CLIENTES AJAX VALIDAR
 	Route::post('clientes/ajaxvalidar', 'ClientesController@ajaxValidar')->name('clientes.ajaxvalidar')->middleware('role:admin,vendedor,comercial,agente-noc,indicadores');
 

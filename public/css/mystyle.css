@@ -17,6 +17,10 @@ select[data-unique="mi-select"] {
   margin-bottom: 5px !important;
 }
 
+.form-group-instalacion{
+  padding-top: 5px !important;
+}
+
 .appointment-slot > div {
     display: inline-block;
     vertical-align: middle;
