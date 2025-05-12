@@ -466,6 +466,8 @@ class AuditoriasController extends Controller
 
         $pdf->AddFont('calibri','','calibri.php');
         $pdf->AddFont('futura-bdcn-bt-bold','','futura-bdcn-bt-bold.php');
+        $pdf->AddFont('Futura Md BT Bold', '', 'Futura Md BT Bold.php');
+    
 
         $pdf->AliasNbPages();
         $pdf->AddPage();

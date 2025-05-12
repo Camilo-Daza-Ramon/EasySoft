@@ -42,10 +42,10 @@ class ValidationRuleParser
      */
     public function explode($rules)
     {
+    
         $this->implicitAttributes = [];
-
         $rules = $this->explodeRules($rules);
-
+    
         return (object) [
             'rules' => $rules,
             'implicitAttributes' => $this->implicitAttributes,
@@ -81,6 +81,9 @@ class ValidationRuleParser
      */
     protected function explodeExplicitRule($rule)
     {
+        if (!is_string($rule) && !is_object($rule) && !is_array($rule)) {
+            throw new InvalidArgumentException('El argumento $rule debe ser una cadena, objeto o arreglo.');
+        }
         if (is_string($rule)) {
             return explode('|', $rule);
         } elseif (is_object($rule)) {

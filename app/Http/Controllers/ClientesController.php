@@ -198,7 +198,7 @@ class ClientesController extends Controller
             // Consultar los nodos directamente desde la tabla NODOS
             $nodos = DB::table('NODOS')->select('nodo_id AS id', 'NombreNodo')->get();
             $comunidades = DB::table('comunidades')->select('ComunidadID', 'nombre_comunidad')->get();
-    
+            
             return view('adminlte::clientes.create', compact('proyectos', 'zonas', 'localidades', 'comunidades','nodos'));
         } else {
             abort(403);
@@ -220,6 +220,11 @@ class ClientesController extends Controller
                 'TipoNodo' => 'nullable|exists:NODOS,nodo_id',
                 'tipo_servicio' => 'required',   
                 'proyecto' => 'required',
+                'nodo_id' => 'nullable|integer|exists:NODOS,nodo_id',
+                'tipo_comunidad' => 'nullable|string|in:HOGAR,ZONA WIFI',
+                'id_unifier' => 'nullable|integer|min:1|max:645',
+
+
                 'departamento' => 'required',
                 'municipio' => 'required',
                 'estrato' => 'required',
@@ -256,6 +261,10 @@ class ClientesController extends Controller
                 //asignamos todos los datos que se envian por post
                 $cliente = new Cliente;
                     // Si el tipo de usuario es "Nodo", actualiza el estado del nodo seleccionado
+                $cliente->nodo_id = $request->input('nodo_id');
+                $cliente->tipo_comunidad = $request->input('tipo_comunidad');
+                $cliente->id_unifier = $request->input('id_unifier');
+
 
                 $cliente->tipo_servicio = $request->tipo_servicio;
                 // Validar y actualizar el estado del nodo seleccionado
@@ -551,29 +560,9 @@ class ClientesController extends Controller
     public function show($id)
     {
         if (Auth::user()->can('clientes-ver')) {
-            #Actualizar Municipios
-            /*$clientes = Cliente::select('ClienteId', 'UbicacionId')->with('Ubicacion')->where('UbicacionId', 93)->whereNull('municipio_id')->limit(500)->get();
-
-            foreach ($clientes as $dato ) {
-                $cliente = Cliente::find($dato->ClienteId);
-                $cliente->municipio_id = $dato->ubicacion->municipio->MunicipioId;
-                $cliente->save();
-            }*/
             
             $cliente = null;
 
-            /*if (Auth::user()->hasRole('vendedor')) {
-
-                $cliente = Cliente::where([['user_id', Auth::user()->id], ['Status', 'RECHAZADO']])->findOrFail($id);
-
-                if (empty($cliente)) {
-                    abort(403);
-                }
-
-
-            }else{
-                
-            }*/
 
             $cliente = Cliente::findOrFail($id);
             // Consultar el nombre de la comunidad
@@ -662,10 +651,10 @@ class ClientesController extends Controller
         if (Auth::user()->can('clientes-actualizar')) {
             $cliente = Cliente::findOrFail($id);
 
-            // Agregar consulta para obtener las comunidades
+            $nodos = DB::table('NODOS')->select('nodo_id AS id', 'NombreNodo')->get();
+            
+            $proyectos = Proyecto::select('ProyectoID as id', 'NumeroDeProyecto as nombre')->where('Status', 'A')->get();
             $comunidades = DB::table('comunidades')->select('ComunidadID', 'nombre_comunidad')->get();
-            // Obtener nodos disponibles
-            $nodos = DB::table('NODOS')->select('nodo_id', 'NombreNodo', 'tipo_conexion', 'estado')->get();
 
 
 
@@ -788,43 +777,7 @@ class ClientesController extends Controller
                     $cliente->ComunidadID = $request->ComunidadID;
                 }
             }
-
-/* 
-// **Caso 1:** Cuando se crea el usuario y se asigna un nodo
-if ($cliente->nodo_id === null && $request->nodo_id !== null) {
-    // Incrementar el contador en el nodo asignado
-    DB::table('NODOS')
-        ->where('nodo_id', $request->nodo_id)
-        ->increment('estado', 1);
-
-    // Actualizar el nodo_id en el cliente
-    $cliente->nodo_id = $request->nodo_id;
-}
-
-// **Caso 2:** Cambio de nodo
-if ($cliente->nodo_id !== null && $cliente->nodo_id !== $request->nodo_id) {
-    // Decrementar el contador en el nodo anterior
-    DB::table('NODOS')
-        ->where('nodo_id', $cliente->nodo_id)
-        ->decrement('estado', 1);
-
-    // Incrementar el contador en el nuevo nodo
-    DB::table('NODOS')
-        ->where('nodo_id', $request->nodo_id)
-        ->increment('estado', 1);
-
-    // Actualizar el nodo_id en el cliente
-    $cliente->nodo_id = $request->nodo_id;
-}
-
-// **Caso 3:** Cuando el usuario no cambia de nodo
-if ($cliente->nodo_id === $request->nodo_id) {
-    // No se realiza ninguna acción en este caso
-}
- */
-
-
-                
+      
     
                 // Actualizar otros datos del cliente
                 $cliente->NombreBeneficiario = mb_convert_case($request->nombres, MB_CASE_TITLE, "UTF-8");

@@ -20,6 +20,9 @@ select[data-unique="mi-select"] {
 .form-group-instalacion{
   padding-top: 5px !important;
 }
+.camp-material{
+  width: 300px !important;
+}
 
 .appointment-slot > div {
     display: inline-block;

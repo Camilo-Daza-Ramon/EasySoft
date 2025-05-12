@@ -22,16 +22,16 @@
 
 							<div class="form-group{{ $errors->has('vel_bajada') ? ' has-error' : '' }} col-md-6">
 								<label>Vel. Bajada</label>
-								<input type="number" class="form-control" name="vel_bajada" value="{{number_format($instalacion->velocidad_bajada,2, '.','')}}" step="0.01" required>
+								<input type="number" class="form-control" name="vel_bajada" value="{{number_format($instalacion->velocidad_bajada,2, '.','')}}" step="0.01" >
 							</div>
 							<div class="form-group{{ $errors->has('vel_subida') ? ' has-error' : '' }} col-md-6">
 								<label>Vel. Subida</label>
-								<input type="number" class="form-control" name="vel_subida" value="{{number_format($instalacion->velocidad_subida,2, '.','')}}" step="0.01" required>
+								<input type="number" class="form-control" name="vel_subida" value="{{number_format($instalacion->velocidad_subida,2, '.','')}}" step="0.01" >
 							</div>
 
 							<div class="form-group{{ $errors->has('servicio_activo') ? ' has-error' : '' }} col-md-6">
 								<label>Servicio queda activo?</label>
-								<select class="form-control" name="servicio_activo" required>
+								<select class="form-control" name="servicio_activo" >
 									<option value="">Elija una opcion</option>
 									@if($instalacion->servicio_activo == 'SI')
 										<option value="SI" selected>SI</option>
@@ -44,7 +44,7 @@
 
 							<div class="form-group{{ $errors->has('cumple_velocidad') ? ' has-error' : '' }} col-md-6">
 								<label>Cumple Velocidad Contratada?</label>
-								<select class="form-control" name="cumple_velocidad" required>
+								<select class="form-control" name="cumple_velocidad" >
 									<option value="">Elija una opcion</option>
 									@if($instalacion->cumple_velocidad_contratada == 'SI')
 										<option value="SI" selected>SI</option>
@@ -57,12 +57,12 @@
 
 							<div class="form-group{{ $errors->has('serial_ont') ? ' has-error' : '' }} col-md-6">
 								<label>Serial ONT</label>
-								<input type="text" class="form-control" name="serial_ont" value="{{$instalacion->serial_ont}}"required>
+								<input type="text" class="form-control" name="serial_ont" value="{{$instalacion->serial_ont}}">
 							</div>
 
 							<div class="form-group{{ $errors->has('estado') ? ' has-error' : '' }} col-md-6">
 								<label>*Estado</label>
-								<select class="form-control" name="estado" required>
+								<select class="form-control" name="estado" >
 									<option value="">Elija una opcion</option>
 									@foreach($estados as $estado)
 										@if($estado == $instalacion->estado)
@@ -95,26 +95,26 @@
 					                	<tr>
 					                		<td>Conector SC/APC</td>
 					                		<td>
-					                			<input type="number" name="conector" class="form-control" value="{{$instalacion->conector}}" min="0"  required>			                			
+					                			<input type="number" name="conector" class="form-control" value="{{$instalacion->conector}}" min="0"  >			                			
 					                		</td>
 					                	</tr>
 					                	<tr>
 					                		<td>Conector PigTail SC/APC</td>
 					                		<td>
-					                			<input type="number" name="pigtail" class="form-control" value="{{$instalacion->pigtail}}" min="0"  required>
+					                			<input type="number" name="pigtail" class="form-control" value="{{$instalacion->pigtail}}" min="0"  >
 					                		</td>
 					                	</tr>			                	
 					                	<tr>
 					                		<td>Retencion {{$instalacion->tipo_retenciones}}</td>
 					                		<td>
-					                			<input type="number" name="cant_retenciones" class="form-control" value="{{$instalacion->cant_retenciones}}" min="0"  required>
+					                			<input type="number" name="cant_retenciones" class="form-control" value="{{$instalacion->cant_retenciones}}" min="0"  >
 					                		</td>
 					                	</tr>
 					                	<tr>
 					                		<td>Cinta Bandit</td>
 					                		<td>
 					                			<div class="input-group">
-													<input type="number" name="cinta_bandit" class="form-control" value="{{$instalacion->cinta_bandit}}" min="0"  required>
+													<input type="number" name="cinta_bandit" class="form-control" value="{{$instalacion->cinta_bandit}}" min="0"  >
 													<span class="input-group-addon">CM</span>
 												</div>
 					                		</td>
@@ -122,55 +122,55 @@
 					                	<tr>
 					                		<td>Hebilla</td>
 					                		<td>
-					                			<input type="number" name="hebilla" class="form-control" value="{{$instalacion->hebilla}}" min="0"  required>
+					                			<input type="number" name="hebilla" class="form-control" value="{{$instalacion->hebilla}}" min="0"  >
 					                		</td>
 					                	</tr>
 					                	<tr>
 					                		<td>Gancho Poste</td>
 					                		<td>
-					                			<input type="number" name="gancho_poste" class="form-control" value="{{$instalacion->gancho_poste}}" min="0"  required>
+					                			<input type="number" name="gancho_poste" class="form-control" value="{{$instalacion->gancho_poste}}" min="0"  >
 					                		</td>
 					                	</tr>
 					                	<tr>
 					                		<td>Gancho Pared</td>
 					                		<td>
-					                			<input type="number" name="gancho_pared" class="form-control" value="{{$instalacion->gancho_pared}}" min="0"  required>
+					                			<input type="number" name="gancho_pared" class="form-control" value="{{$instalacion->gancho_pared}}" min="0"  >
 					                		</td>
 					                	</tr>
 					                	<tr>
 					                		<td>Correa Amarre {{$instalacion->tipo_correa_amarre}}</td>
 					                		<td>
-					                			<input type="number" name="cant_correa_amarre" class="form-control" value="{{$instalacion->cant_correa_amarre}}" min="0"  required>
+					                			<input type="number" name="cant_correa_amarre" class="form-control" value="{{$instalacion->cant_correa_amarre}}" min="0"  >
 					                		</td>
 					                	</tr>
 					                	<tr>
 					                		<td>Chazo {{$instalacion->tipo_chazo}}</td>
 					                		<td>
-					                			<input type="number" name="cant_chazo" class="form-control" value="{{$instalacion->cant_chazo}}" min="0"  required>
+					                			<input type="number" name="cant_chazo" class="form-control" value="{{$instalacion->cant_chazo}}" min="0"  >
 					                		</td>
 					                	</tr>
 					                	<tr>
 					                		<td>Tornillo 1/4</td>
 					                		<td>
-					                			<input type="number" name="tornillo" class="form-control" value="{{$instalacion->tornillo}}" min="0"  required>
+					                			<input type="number" name="tornillo" class="form-control" value="{{$instalacion->tornillo}}" min="0"  >
 					                		</td>
 					                	</tr>
 					                	<tr>
 					                		<td>Rosetas</td>
 					                		<td>
-					                			<input type="number" name="roseta" class="form-control" value="{{$instalacion->roseta}}" min="0"  required>
+					                			<input type="number" name="roseta" class="form-control" value="{{$instalacion->roseta}}" min="0"  >
 					                		</td>
 					                	</tr>
 					                	<tr>
 					                		<td>Patch Cord FIBRA</td>
 					                		<td>
-					                			<input type="number" name="patch_cord_fibra" class="form-control" value="{{$instalacion->patch_cord_fibra}}" min="0"  required>
+					                			<input type="number" name="patch_cord_fibra" class="form-control" value="{{$instalacion->patch_cord_fibra}}" min="0"  >
 					                		</td>
 					                	</tr>
 					                	<tr>
 					                		<td>Patch Cord UTP</td>
 					                		<td>
-					                			<input type="number" name="patch_cord_utp" class="form-control" value="{{$instalacion->patch_cord_utp}}" min="0"  required>
+					                			<input type="number" name="patch_cord_utp" class="form-control" value="{{$instalacion->patch_cord_utp}}" min="0"  >
 					                		</td>
 					                	</tr>
 					                	<tr>
@@ -180,7 +180,7 @@
 					                		<td>Desde:</td>
 					                		<td>
 					                			<div class="input-group">
-													<input type="number" name="fibra_drop_desde" class="form-control" value="{{$instalacion->fibra_drop_desde}}" min="0" step="0.01" required>
+													<input type="number" name="fibra_drop_desde" class="form-control" value="{{$instalacion->fibra_drop_desde}}" min="0" step="0.01" >
 													<span class="input-group-addon">Mts</span>
 												</div>
 					                		</td>	
@@ -189,7 +189,7 @@
 					                		<td>Hasta:</td>
 					                		<td>
 					                			<div class="input-group">
-													<input type="number" name="fibra_drop_hasta" class="form-control" value="{{$instalacion->fibra_drop_hasta}}" min="0" step="0.01" required>
+													<input type="number" name="fibra_drop_hasta" class="form-control" value="{{$instalacion->fibra_drop_hasta}}" min="0" step="0.01" >
 													<span class="input-group-addon">Mts</span>
 												</div>
 					                		</td>	
@@ -288,7 +288,7 @@
 										<input type="hidden" name="estado" value="EN REVISION">
 
 										<div class="input-group {{ $errors->has('archivo') ? ' has-error' : '' }} input-group-sm">
-											<input type="file" class="form-control input-sm" name="archivo" required>
+											<input type="file" class="form-control input-sm" name="archivo" >
 												<span class="input-group-btn">
 													<button id="btn-subir" type="submit" class="btn btn-info btn-flat"><i class="fa fa-upload"></i> Subir</button>
 												</span>

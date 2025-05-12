@@ -60,9 +60,16 @@
       <div class="container contenedor">
         <table class="table principal table-bordered">
           <tr>
-            <td rowspan="2" style="margin: 0px;">
-              <img src="img/amigored.png" class="logo">
-            </td>
+            @if ($data['proyecto_id'] == 14)
+              <td rowspan="2">
+                <img src="img/grupo_energia_bogota.png" class="logo"> <br>
+                <img src="img/logo_sisteco.png" class="logo">
+              </td>
+            @else
+              <td rowspan="2" style="margin: 0px;">
+                <img src="img/amigored.png" class="logo">
+              </td>
+            @endif
 
             <td>
               <h2 class="titulo">SISTEMAS Y TELECOMUNICACIONES DEL ORIENTE S.A.S</h2>
@@ -215,12 +222,21 @@
             <td>
               {{$data['direccion']}}
             </td>
+            @if ($data['proyecto_id'] == 14)
+            <td>
+              <p style="text-align: center;">COMUNIDAD</p>
+            </td>
+            <td>
+              {{$data['comunidad_id']}}
+            </td>
+            @else
             <td>
               <p style="text-align: center;">ESTRATO:</p>
             </td>
             <td>
               {{$data['estrato']}}
             </td>
+            @endif
           </tr>
 
           <tr>
@@ -230,21 +246,39 @@
             <td>
               {{$data['coordenadas']}}
             </td>
+
+            @if ($data['proyecto_id'] == 14)
+            <td>
+              <p>BENEFICIARIO:</p>
+            </td>
+            <td>
+              {{$data['tipo_comunidad']}}
+            </td>
+            @else
             <td>
               <p>TIPO DE BENEFICIARIO:</p>
             </td>
             <td>
               {{$data['tipo_beneficiario']}}
             </td>
+            @endif
           </tr>
 
           <tr>
             <td colspan="2"><p>Tipo de Tecnologia implementada: (4G,4.5G, Wifi, HFC, xDSL, FTTH)</p></td>
+            @if ($data['proyecto_id'] == 14)
+            <td colspan="2">WIFI</td>
+            @else
             <td colspan="2">FTTH</td>
+            @endif
           </tr>
           <tr>
             <td><p>IDENTIFICACION DE LA RED:</p></td>
+            @if ($data['proyecto_id'] == 14)
+            <td colspan="3">ENLAZANET 2</td>
+            @else
             <td colspan="3">AMIGO RED</td>
+            @endif
           </tr>
         </table>
 
@@ -263,6 +297,9 @@
               <p style="text-align: center;color: #ffffff;">ESTADO</p>
             </td>
           </tr>
+          @if ($data['proyecto_id'] == 14)
+          {{-- ESTE ESPACIO SE DEJA PORQUE EN EL FORMULARIO DE LA GUAJIRA NO SON NECESARIOS LOS CAMPOS DEL ELSE --}}
+          @else
           <tr>
             <td>
               <p>Tipo de terminal de usuario (UE,CPE,etc)</p>
@@ -277,6 +314,8 @@
             <td>{{$data['serial_equipo']}}</td>
             <td>{{$data['estado_equipo']}}</td>
           </tr>
+          @endif
+
           <tr>
             <td><p>Número de equipos conectados</p></td>
             <td colspan="3">{{$data['cantidad_equipos_conectados']}}</td>
@@ -300,6 +339,7 @@
               <p style="text-align: center; color: #ffffff;">PRUEBAS DEL SERVICIO</p>
             </td>
           </tr>
+          {{-- CAMPO PARA AGREGAR LAS FOTOS DE LOS ELEMENTOS DEPENDIENDO DE QUE TIPO DE CONEXION SEA --}}
           <tr>
             <td>
               <p>Velocidad de bajada</p>
@@ -314,46 +354,108 @@
             <td>
               <p>Ping</p>
             </td>
-            <td>
-              <img src=".{{Storage::url($data['ping'])}}" width="210">
+            <td style="width: 210px; height: auto; text-align: center; overflow: hidden;">
+              @php
+                  $pingPath = public_path(Storage::url($data['ping']));
+              @endphp
+              @if(!empty($data['ping']) && file_exists($pingPath))
+                  <img src="{{ $pingPath }}" width="210">
+              @endif
             </td>
             <td>
               <p>Speedtest</p>
             </td>
-            <td>
-              <img src=".{{Storage::url($data['speedtest'])}}" width="210">
+            <td style="width: 210px; height: auto; text-align: center; overflow: hidden;">
+              @php
+                  $speedPath = public_path(Storage::url($data['speedtest']));
+              @endphp
+              @if(!empty($data['speedtest']) && file_exists($speedPath))
+                  <img src="{{ $speedPath }}" width="210">
+              @endif
             </td>
           </tr>
           <tr>
             <td>
               <p>Navegación web - Página de prueba Google</p>
             </td>
-            <td>
-              <img src=".{{Storage::url($data['google'])}}" width="210">
+            <td style="width: 210px; height: auto; text-align: center; overflow: hidden;">
+              @php
+                  $navegacionPath = public_path(Storage::url($data['google']));
+              @endphp
+              @if(!empty($data['google']) && file_exists($navegacionPath))
+                  <img src="{{ $navegacionPath }}" width="210">
+              @endif
             </td>
             <td>
               <p>Video streaming - Youtube</p>
             </td>
-            <td>
-              <img src=".{{Storage::url($data['youtube'])}}" width="210">
+            <td style="width: 210px; height: auto; text-align: center; overflow: hidden;">
+              @php
+                  $streamPath = public_path(Storage::url($data['youtube']));
+              @endphp
+              @if(!empty($data['youtube']) && file_exists($streamPath))
+                  <img src="{{ $streamPath }}" width="210">
+              @endif
             </td>
           </tr>
           <tr>
             <td>
               <p>Navegación web - Página de prueba MinTIC</p>
             </td>
-            <td>
-              <img src=".{{Storage::url($data['mintic'])}}" width="210">
+            <td style="width: 210px; height: auto; text-align: center; overflow: hidden;">
+              @php
+                  $minticPath = public_path(Storage::url($data['mintic']));
+              @endphp
+              @if(!empty($data['mintic']) && file_exists($minticPath))
+                  <img src="{{ $minticPath }}"width="210">
+              @endif
             </td>
             <td>
               <p>Instalacion</p>
             </td>
-            <td>
-              <img src=".{{Storage::url($data['instalacion'])}}" width="210">
+            <td style="width: 210px; height: auto; text-align: center; overflow: hidden;">
+              @php
+                  $instalacionPath = public_path(Storage::url($data['instalacion']));
+              @endphp
+              @if(!empty($data['instalacion']) && file_exists($instalacionPath))
+                  <img src="{{ $instalacionPath }}"  width="210">
+              @endif
             </td>
           </tr>
+          <tr>
+            {{-- EVIDENCIAS DE LOS ELEMENTOS DE INSTALACIÓN EN DOS COLUMNAS --}}
+            @if ($data['proyecto_id'] == 14 && isset($data['elementos_guajira']) && count($data['elementos_guajira']))
+                <table class="table principal table-bordered table-sm">
+                    <tr>
+                        <td colspan="4" bgcolor="#305496">
+                            <p style="text-align: center; color: #ffffff;">EVIDENCIAS DE LOS ELEMENTOS DE INSTALACIÓN</p>
+                        </td>
+                    </tr>
+                    @foreach($data['elementos_guajira']->chunk(2) as $chunk)
+                        <tr>
+                            @foreach($chunk as $elemento)
+                                <td>
+                                    <p>{{ $elemento->element_name }}</p>
+                                </td>
+                                <td style="width: 210px; height: auto; text-align: center; overflow: hidden;">
+                                    @php
+                                        $fotoPath = public_path('storage/' . $elemento->fotografias);
+                                    @endphp
+                                    @if(!empty($elemento->fotografias) && file_exists($fotoPath))
+                                        <img src="{{ $fotoPath }}" width="210" style="max-width: 210px; max-height: 250px; object-fit: contain;">
+                                    @endif
+                                </td>
+                            @endforeach
+                            {{-- Si hay un número impar de elementos, agrega celdas vacías --}}
+                            @if($chunk->count() < 2)
+                                <td></td><td></td>
+                            @endif
+                        </tr>
+                    @endforeach
+                </table>
+            @endif
+          </tr>
         </table>
-
 
         <table class="table principal table-sm" style="border: 0px;">
           <tr style="border: 0px;">
@@ -413,7 +515,12 @@
           </tr>
           <tr>
             <td>
-              <img src=".{{Storage::url($data['firma_cliente'])}}" width="210">
+              @php
+                  $firmaPath = public_path(Storage::url($data['firma_cliente']));
+              @endphp
+              @if(!empty($data['firma_cliente']) && file_exists($firmaPath))
+                  <img src="{{ $firmaPath }}"  width="210">
+              @endif
               <p class="celda-pequena centrado">FIRMA</p>
               {{$data['nombre_cliente']}}
               <p class="celda-pequena centrado">NOMBRE CLIENTE</p>
@@ -421,7 +528,12 @@
               <p class="celda-pequena centrado">CEDULA</p>
             </td>
             <td>
-              <img src=".{{Storage::url($data['firma_instalador'])}}" width="210">
+              @php
+                  $firmaInstPath = public_path(Storage::url($data['firma_instalador']));
+              @endphp
+              @if(!empty($data['firma_instalador']) && file_exists($firmaInstPath))
+                  <img src="{{ $firmaInstPath }}"  width="210">
+              @endif
               <p class="celda-pequena centrado">FIRMA</p>
               {{$data['nombre_tecnico']}}
               <p class="celda-pequena centrado">NOMBRE DEL TECNICO INSTALACION</p>

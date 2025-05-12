@@ -721,6 +721,7 @@ class MantenimientoPreventivoController extends Controller
         $pdf = new ActaMantenimiento('P','mm', 'A4', $mantenimiento, 'preventivo');
 
         $pdf->AddFont('calibri','','calibri.php');
+        $pdf->AddFont('Futura Md BT Bold', '', 'Futura Md BT Bold.php');
 
         $pdf->AliasNbPages();
         $pdf->AddPage();

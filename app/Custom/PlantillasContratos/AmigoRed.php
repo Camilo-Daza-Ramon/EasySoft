@@ -98,11 +98,11 @@ class AmigoRed extends Fpdf
 	    $this->MultiCell(90,4, utf8_decode($data['condiciones_plan']),'L R', 'J', false);
 
 	    $this->SetTextColor(255,255,255);
-	    $this->SetFont('futura-bdcn-bt-bold','',10);
+	    $this->SetFont('Futura BdCn BT Bold','',10);
 	    $this->MultiCell(90,6, utf8_decode("OTROS COSTOS"), 'L R', 'C', true);
 
 	    $this->SetTextColor(27,27,27);
-	    $this->SetFont('futura-bdcn-bt-bold','',9);
+	    $this->SetFont('Futura BdCn BT Bold','',9);
 	    $this->Cell(75,5,"CONCEPTO", 'L',0, 'C');
 	    $this->Cell(15,5,"VALOR", 'L R',0, 'C');
 	    $this->Ln();
@@ -151,12 +151,12 @@ class AmigoRed extends Fpdf
 		/*
 		$this->SetFillColor(85,64,111);
 	    $this->SetTextColor(255,255,255);
-        $this->SetFont('futura-bdcn-bt-bold','',10);
+        $this->SetFont('Futura BdCn BT Bold','',10);
 	    $this->MultiCell(90,6, utf8_decode("SERVICIOS ADICIONALES"), 'L R', 'C', true);
 
 	    
 	    $this->SetTextColor(27,27,27);
-	    $this->SetFont('futura-bdcn-bt-bold','',9);
+	    $this->SetFont('Futura BdCn BT Bold','',9);
 	    $this->Cell(75,5,"NOMBRE", 'L T',0, 'C');
 	    $this->Cell(15,5,"VALOR", 'L T R',0, 'C');
 	    $this->Ln();
@@ -177,11 +177,11 @@ class AmigoRed extends Fpdf
 
 	    /*$this->SetFillColor(85,64,111);
 	    $this->SetTextColor(255,255,255);
-	    $this->SetFont('futura-bdcn-bt-bold','',10);
+	    $this->SetFont('Futura BdCn BT Bold','',10);
 	    $this->MultiCell(90,6, utf8_decode("EQUIPOS ENTREGADOS"), 'L R', 'C', true);
 
 	    $this->SetTextColor(27,27,27);
-	    $this->SetFont('futura-bdcn-bt-bold','',9);
+	    $this->SetFont('Futura BdCn BT Bold','',9);
 	    $this->Cell(15,5,"TIPO", 'L',0, 'C');
 	    $this->Cell(60,5,"SERIAL", 'L',0, 'C');
 	    $this->Cell(15,5,"CANT.", 'L R',0, 'C');
@@ -297,7 +297,7 @@ class AmigoRed extends Fpdf
 	    $this->Ln(2);
 
 	    $this->SetX(105,5);	    
-	    $this->SetFont('futura-bdcn-bt-bold','',10);
+	    $this->SetFont('Futura BdCn BT Bold','',10);
 	    $this->MultiCell(90,7, 'CLAUSULA DE PERMANENCIA INTERNET','L T R','C');
 
 	    $this->SetFont('calibri','',9);
@@ -549,7 +549,7 @@ class AmigoRed extends Fpdf
 		$data = $this->datos;
 
         $this->SetTextColor(27,27,27);
-        $this->SetFont('futura-bdcn-bt-bold','',10);
+        $this->SetFont('Futura BdCn BT Bold','',10);
 
         $this->Cell(0,7,utf8_decode('FORMATO DE AUTORIZACIÓN DE TRATAMIENTO PROTECCIÓN DE DATOS PERSONALES'),0,0,'C');
         $this->Ln();
@@ -594,7 +594,7 @@ class AmigoRed extends Fpdf
 		$data = $this->datos;
 
 	    $this->SetTextColor(27,27,27);
-	    $this->SetFont('futura-bdcn-bt-bold','',10);
+	    $this->SetFont('Futura BdCn BT Bold','',10);
 
 	    $this->Cell(0,7,utf8_decode('AUTORIZACIÓN PARA CONSULTA Y REPORTE A CENTRALES DE INFORMACIÓN COMERCIAL SOBRE EL CLIENTE'),0,0,'C');
 	    $this->Ln();
@@ -621,7 +621,7 @@ class AmigoRed extends Fpdf
 	function prevenir_pornografia(){
 
         $this->SetTextColor(27,27,27);
-        $this->SetFont('futura-bdcn-bt-bold','',10);
+        $this->SetFont('Futura BdCn BT Bold','',10);
 
         $this->MultiCell(0,7,utf8_decode('ANEXO 1 AL CONTRATO DE PRESTACIÓN DE SERVICIOS DE TELECOMUNICACIONES, PARA PREVENIR Y CONTRARRESTAR LA EXPLOTACIÓN Y LA PORNOGRAFÍA INFANTIL.'),0,'C',false);
 
@@ -683,7 +683,7 @@ class AmigoRed extends Fpdf
 		$data = $this->datos;
 
 		$this->SetTextColor(27,27,27);
-        $this->SetFont('futura-bdcn-bt-bold','',10);
+        $this->SetFont('Futura BdCn BT Bold','',10);
 
         $this->MultiCell(0,5,utf8_decode("ANEXO 2 DEL CONTRATO \nBENEFICIO PROYECTO LÍNEAS DE FOMENTO CONECTIVIDAD EN HOGARES"),0,'C', false);
         $this->Ln();
@@ -736,7 +736,7 @@ class AmigoRed extends Fpdf
 	{
 	    $this->SetY(-10);
 	    $this->SetTextColor(27,27,27);
-	    $this->SetFont('futura-bdcn-bt-bold','',8);
+	    $this->SetFont('Futura BdCn BT Bold','',8);
 	    $this->Cell(0,5,utf8_decode('Página ').$this->PageNo().'/{nb}',0,0,'C');
 	}  */
 
@@ -745,7 +745,7 @@ class AmigoRed extends Fpdf
     {
         $ancho = 195;
         // Header
-        $this->SetFont('futura-bdcn-bt-bold','',9.5);
+        $this->SetFont('Futura BdCn BT Bold','',9.5);
         foreach($header as $col)
             if ($ancho == 195) {
                 $this->Cell(80,7,$col,1,0,'C');

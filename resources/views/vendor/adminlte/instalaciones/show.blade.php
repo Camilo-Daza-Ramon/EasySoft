@@ -71,11 +71,124 @@
 		            	<table class="table no-margin">
 			                <thead>
 			                	<tr>
-			                		<th>Material</th>			                		
-			                		<th>Cantidad</th>			                		
+			                		<th class="camp-material">Material</th>
+									<th class="camp-material">Serial</th>			                		
+			                		<th>Cantidad</th>	                		
 			                	</tr>
 			                </thead>
-			                <tbody>
+							@if ($instalacion->cliente->ProyectoId == 14)
+								@if($instalacion->estructura === 'NODO_PRIMARIO')
+									<tbody>
+										@foreach ($elementosGuajira as $elemento)
+											<tr>
+												<td>{{ $elemento['element_name'] }}</td>
+												<td>{{ $elemento['serial'] }}</td>
+												<td>{{ $elemento['cantidad'] }}</td>
+											</tr>
+										@endforeach
+									</tbody>
+								@elseif($instalacion->estructura === 'NODO_SECUNDARIO')
+									<tbody>
+										@foreach ($elementosGuajira as $elemento)
+											<tr>
+												<td>{{ $elemento['element_name'] }}</td>
+												<td>{{ $elemento['serial'] }}</td>
+												<td>{{ $elemento['cantidad'] }}</td>
+											</tr>
+										@endforeach
+									</tbody>
+								@elseif($instalacion->estructura === 'PAC_CC')
+									<tbody>
+										@foreach ($elementosGuajira as $elemento)
+											<tr>
+												<td>{{ $elemento['element_name'] }}</td>
+												<td>{{ $elemento['serial'] }}</td>
+												<td>{{ $elemento['cantidad'] }}</td>
+											</tr>
+										@endforeach
+									</tbody>
+								@elseif($instalacion->estructura === 'HOGAR')
+									<tbody>
+										@foreach ($elementosGuajira as $elemento)
+											<tr>
+												<td>{{ $elemento['element_name'] }}</td>
+												<td>{{ $elemento['serial'] }}</td>
+												<td>{{ $elemento['cantidad'] }}</td>
+											</tr>
+										@endforeach
+									</tbody>
+								@elseif($instalacion->estructura === 'CABLEADO')
+									<tbody>
+										@foreach ($elementosGuajira as $elemento)
+											<tr>
+												<td>{{ $elemento['element_name'] }}</td>
+												<td>{{ $elemento['serial'] }}</td>
+												<td>{{ $elemento['cantidad'] }}</td>
+											</tr>
+										@endforeach
+									</tbody>
+								@elseif($instalacion->estructura === 'ONT')
+									<tbody>
+										<tr>
+											<td>Conector SC/APC</td>
+											<td>{{$instalacion->conector}}</td>
+										</tr>
+										<tr>
+											<td>Conector PigTail SC/APC</td>
+											<td>{{$instalacion->pigtail}}</td>
+										</tr>			                	
+										<tr>
+											<td>Retencion {{$instalacion->tipo_retenciones}}</td>
+											<td>{{$instalacion->cant_retenciones}}</td>
+										</tr>
+										<tr>
+											<td>Cinta Bandit</td>
+											<td>{{$instalacion->cinta_bandit}} cm</td>
+										</tr>
+										<tr>
+											<td>Hebilla</td>
+											<td>{{$instalacion->hebilla}}</td>
+										</tr>
+										<tr>
+											<td>Gancho Poste</td>
+											<td>{{$instalacion->gancho_poste}}</td>
+										</tr>
+										<tr>
+											<td>Gancho Pared</td>
+											<td>{{$instalacion->gancho_pared}}</td>
+										</tr>
+										<tr>
+											<td>Correa Amarre {{$instalacion->tipo_correa_amarre}}</td>
+											<td>{{$instalacion->cant_correa_amarre}}</td>
+										</tr>
+										<tr>
+											<td>Chazo {{$instalacion->tipo_chazo}}</td>
+											<td>{{$instalacion->cant_chazo}}</td>
+										</tr>
+										<tr>
+											<td>Tornillo 1/4</td>
+											<td>{{$instalacion->tornillo}}</td>
+										</tr>
+										<tr>
+											<td>Rosetas</td>
+											<td>{{$instalacion->roseta}}</td>
+										</tr>
+										<tr>
+											<td>Patch Cord FIBRA</td>
+											<td>{{$instalacion->patch_cord_fibra}}</td>
+										</tr>
+										<tr>
+											<td>Patch Cord UTP</td>
+											<td>{{$instalacion->patch_cord_utp}}</td>
+										</tr>
+										<tr>
+											<td>Fibra Optica Drop de 1 hilo <b>Desde: </b> {{$instalacion->fibra_drop_desde}} <b>Hasta: </b> {{$instalacion->fibra_drop_hasta}}</td>
+											<td>{{$instalacion->fibra_drop_desde - $instalacion->fibra_drop_hasta}} Mts</td>
+										</tr>
+									</tbody>
+								@endif
+							@else
+							<tbody>
 			                	<tr>
 			                		<td>Conector SC/APC</td>
 			                		<td>{{$instalacion->conector}}</td>
@@ -133,6 +246,7 @@
 			                		<td>{{$instalacion->fibra_drop_desde - $instalacion->fibra_drop_hasta}} Mts</td>
 			                	</tr>
 			                </tbody>
+							@endif
 						</table>		              
 		            </div>
 		            <!-- /.box-body -->		            
@@ -162,32 +276,108 @@
 
 		            	<table class="table table-bordered">
 		            		<tbody>
-		            			<tr>
-		                			<th class="bg-gray">Serial ONT</th>
-		                			<td colspan="3">{{$instalacion->serial_ont}}</td>
-		                		</tr>
-		                		<tr>
-		                			<th class="bg-gray">Caja</th>
-		                			<td>{{$instalacion->caja}}</td>
-		                			<th class="bg-gray">Puerto</th>
-		                			<td>{{$instalacion->puerto}}</td>
-		                		</tr>
-		                		<tr>
-		                			<th class="bg-gray">SP Spliter</th>
-		                			<td>{{$instalacion->sp_splitter}}</td>
-		                			<th class="bg-gray">SS Spliter</th>
-		                			<td>{{$instalacion->ss_splitter}}</td>
-		                		</tr> 
-		                		<tr>
-		                			<th class="bg-gray">Tarjeta</th>
-		                			<td>{{$instalacion->tarjeta}}</td>
-		                			<th class="bg-gray">Modulo</th>
-		                			<td>{{$instalacion->modulo}}</td>
-		                		</tr>
-		                		<tr>
-		                			<th class="bg-gray">OLT</th>
-		                			<td colspan="3">{{$instalacion->olt}}</td>
-		                		</tr>
+								@if ($instalacion->cliente->ProyectoId == 14)
+								@if($instalacion->estructura === 'NODO_PRIMARIO')
+									@foreach ($elementosGuajira as $elemento)
+										<tr>
+											<th class="bg-gray">Serial {{ $elemento['element_name'] }} </th>
+											<td colspan="3">{{ $elemento['serial'] }}</td>
+											<th class="bg-gray">Marca {{ $elemento['element_name'] }} </th>
+											<td colspan="3">{{ $elemento['marca'] }}</td>
+										</tr>
+									@endforeach
+								@elseif($instalacion->estructura === 'NODO_SECUNDARIO')
+									@foreach ($elementosGuajira as $elemento)
+										<tr>
+											<th class="bg-gray">Serial {{ $elemento['element_name'] }} </th>
+											<td colspan="3">{{ $elemento['serial'] }}</td>
+											<th class="bg-gray">Marca {{ $elemento['element_name'] }} </th>
+											<td colspan="3">{{ $elemento['marca'] }}</td>
+										</tr>
+									@endforeach
+								@elseif($instalacion->estructura === 'PAC_CC')
+									@foreach ($elementosGuajira as $elemento)
+										<tr>
+											<th class="bg-gray">Serial {{ $elemento['element_name'] }} </th>
+											<td colspan="3">{{ $elemento['serial'] }}</td>
+											<th class="bg-gray">Marca {{ $elemento['element_name'] }} </th>
+											<td colspan="3">{{ $elemento['marca'] }}</td>
+										</tr>
+									@endforeach
+								@elseif($instalacion->estructura === 'HOGAR')
+									@foreach ($elementosGuajira as $elemento)
+										<tr>
+											<th class="bg-gray">Serial {{ $elemento['element_name'] }} </th>
+											<td colspan="3">{{ $elemento['serial'] }}</td>
+											<th class="bg-gray">Marca {{ $elemento['element_name'] }} </th>
+											<td colspan="3">{{ $elemento['marca'] }}</td>
+										</tr>
+									@endforeach
+								@elseif($instalacion->estructura === 'CABLEADO')
+									@foreach ($elementosGuajira as $elemento)
+											<tr>
+												<th class="bg-gray">Serial {{ $elemento['element_name'] }} </th>
+												<td colspan="3">{{ $elemento['serial'] }}</td>
+												<th class="bg-gray">Marca {{ $elemento['element_name'] }} </th>
+												<td colspan="3">{{ $elemento['marca'] }}</td>
+											</tr>
+									@endforeach
+								@elseif($instalacion->cliente->estructura === 'ONT')
+									<tr>
+										<th class="bg-gray">Serial ONT</th>
+										<td colspan="3">{{$instalacion->serial_ont}}</td>
+									</tr>
+									<tr>
+										<th class="bg-gray">Caja</th>
+										<td>{{$instalacion->caja}}</td>
+										<th class="bg-gray">Puerto</th>
+										<td>{{$instalacion->puerto}}</td>
+									</tr>
+									<tr>
+										<th class="bg-gray">SP Spliter</th>
+										<td>{{$instalacion->sp_splitter}}</td>
+										<th class="bg-gray">SS Spliter</th>
+										<td>{{$instalacion->ss_splitter}}</td>
+									</tr> 
+									<tr>
+										<th class="bg-gray">Tarjeta</th>
+										<td>{{$instalacion->tarjeta}}</td>
+										<th class="bg-gray">Modulo</th>
+										<td>{{$instalacion->modulo}}</td>
+									</tr>
+									<tr>
+										<th class="bg-gray">OLT</th>
+										<td colspan="3">{{$instalacion->olt}}</td>
+									</tr>
+								@endif
+							@else
+								<tr>
+									<th class="bg-gray">Serial ONT</th>
+									<td colspan="3">{{$instalacion->serial_ont}}</td>
+								</tr>
+								<tr>
+									<th class="bg-gray">Caja</th>
+									<td>{{$instalacion->caja}}</td>
+									<th class="bg-gray">Puerto</th>
+									<td>{{$instalacion->puerto}}</td>
+								</tr>
+								<tr>
+									<th class="bg-gray">SP Spliter</th>
+									<td>{{$instalacion->sp_splitter}}</td>
+									<th class="bg-gray">SS Spliter</th>
+									<td>{{$instalacion->ss_splitter}}</td>
+								</tr> 
+								<tr>
+									<th class="bg-gray">Tarjeta</th>
+									<td>{{$instalacion->tarjeta}}</td>
+									<th class="bg-gray">Modulo</th>
+									<td>{{$instalacion->modulo}}</td>
+								</tr>
+								<tr>
+									<th class="bg-gray">OLT</th>
+									<td colspan="3">{{$instalacion->olt}}</td>
+								</tr>
+							@endif
 			                </tbody>
 						</table>
 						<br>
@@ -550,7 +740,7 @@
 		    }
 		  });
 		</script>
-
+	
 		
 	@endsection
 @endsection

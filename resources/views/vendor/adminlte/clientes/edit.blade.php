@@ -39,7 +39,7 @@
 											@endforeach
 										</select>
 									</div>
-									<div class="form-group col-md-3 col-sm-6 text-center" id="comunidad-field" style="display: none;">
+									<div class="form-group col-md-3 col-sm-6 text-center" id="comunidad-field">
 										<label>*Comunidad</label>
 										<select class="form-control" name="ComunidadID" id="comunidad">
 											<option value="">Seleccione una comunidad</option>
@@ -48,19 +48,51 @@
 											@endforeach
 										</select>
 									</div>
-									<div class="form-group col-md-3 col-sm-6 text-center" id="usuario-field">
-										<label>*Usuario</label>
-										<select class="form-control" name="tipo_usuario" id="usuario" class="UsuarioCampo" required>
-											<option value="">Seleccione un tipo de usuario</option>
+									<div class="form-group col-md-3 col-sm-6 text-center" id="unifier-field">
+										<label>*ID Unifier</label>
+										<input type="number" name="id_unifier" class="form-control" placeholder="Ingrese el ID de la plataforma Unifier"  min="1" max="645" autocomplete="off">
+									</div>
+									<div class="form-group col-md-3 col-sm-6 text-center" id="nodo-field">
+										<label>*Nodo</label>
+										<select class="form-control" name="nodo_id" id="nodo" required>
+											<option value="">Seleccione un tipo de Nodo</option>
+											@foreach($nodos as $nodo)
+												<option value="{{ $nodo->id }}">{{ $nodo->NombreNodo }}</option>
+											@endforeach
+										</select>
+									
+									</div>
+									<div class="form-group col-md-3 col-sm-6 text-center" id="servicio-field">
+										<label>*Servicio</label>
+										<select class="form-control" name="tipo_servicio" id="servicio" class="ServicioCampo" required>
+											<option value="">Seleccione un tipo de Servicio</option>
 											<option value="COMUNIDAD DE CONECTIVIDAD">COMUNIDAD DE CONECTIVIDAD</option>
 											<option value="PUNTO DE ACCESO">PUNTO DE ACCESO COMUNITARIO</option>
-											@foreach($nodos as $nodo)
-											<option value="{{ $nodo->nodo_id }}">{{ $nodo->NombreNodo }}</option>
-											@endforeach
-											<option value="HOGAR">HOGAR</option>
-											<option value="USUARIO">USUARIO</option>
 										</select>
-									</div>
+									</div>	
+										<div class="form-group col-md-3 col-sm-6 text-center" id="Tipo-Comunidad-field" style="display: none;">
+											<label>*Tipo de Comunidad de Conectividad</label>
+												<select class="form-control" name="tipo_comunidad" id="Comunidad" class="ComunidadCampo">
+													<option value="">Seleccione un tipo de Servicio</option>
+													<option value="HOGAR">HOGAR</option>
+													<option value="ZONA WIFI">ZONA WIFI</option>
+												</select>
+										</div>		
+										<script>
+											document.addEventListener('DOMContentLoaded', function () { // Esperar a que el DOM esté listo
+												document.getElementById('servicio').addEventListener('change', function () {
+													var tipoComunidadField = document.getElementById('Tipo-Comunidad-field'); // Campo "Tipo de Comunidad de Conectividad"
+													var selectedValue = this.value; // Obtiene la opción seleccionada en el campo "Servicio"
+										
+													if (selectedValue === 'COMUNIDAD DE CONECTIVIDAD') { // Si es "COMUNIDAD DE CONECTIVIDAD"
+														tipoComunidadField.style.display = 'block'; // Muestra el campo "Tipo de Comunidad de Conectividad"
+													} else {
+														tipoComunidadField.style.display = 'none'; // Oculta el campo si no coincide
+														document.getElementById('Comunidad').value = ''; // Resetea el valor del select de Comunidad
+													}
+												});
+											});
+										</script>
 
 									<div class="form-group col-md-3 text-center" id="panel-tipo-beneficiario">
 										<label>Tipo de Beneficiario</label>

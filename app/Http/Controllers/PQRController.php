@@ -152,7 +152,8 @@ class PQRController extends Controller
                 $pqr->ClienteId = $cliente->id;
                 $pqr->ProyectoId = $cliente->proyecto_id;
             }
-
+            $pqr->ClienteId = $cliente->id;
+            $pqr->ProyectoId = $cliente->proyecto_id;
             $pqr->NombreBeneficiario = $request->nombre;
             $pqr->IdentificacionCliente = $request->cedula;
             $pqr->CorreoElectronico = $request->correo;

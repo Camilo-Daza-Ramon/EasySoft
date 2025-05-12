@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:api')->get('/user', [App\Http\Controllers\Api\UserController::class, 'show']);
+Route::get('/user', ['uses' => [App\Http\Controllers\Api\UserController::class, 'show']]);
 
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function () {
     //    Route::resource('task', 'TasksController');

@@ -35,15 +35,23 @@
 						<label>Proyecto</label>
 						<p>{{$cliente->proyecto->NumeroDeProyecto}}</p>			
 					</div>
-					<div class="col-md-4">
-						<label>Tipo Beneficiario</label>
-						<p>{{$cliente->tipo_beneficiario}}</p>			
-					</div>
-					<div class="col-md-4">
-						<label>Clasificación</label> <br>
-						<span class="label bg-black">{{$cliente->Clasificacion}}</span>
-					</div>
-					
+					@if ($cliente->ProyectoId == 14)
+						<div class="col-md-4">
+							<label>ID Unifier</label> <br>
+							<span class="label bg-black">{{$cliente->id_unifier}}</span>
+						</div>
+					@else
+						<div class="col-md-4">
+							<label>Tipo Beneficiario</label>
+							<p>{{$cliente->tipo_beneficiario}}</p>			
+						</div>
+						<div class="col-md-4">
+							<label>Clasificación</label> <br>
+							<span class="label bg-black">{{$cliente->Clasificacion}}</span>
+						</div>
+					@endif
+
+						
 					
 				</div>
 				<div class="row">
@@ -60,16 +68,12 @@
 							<label>Tipo de Servicio</label>
 							<p>{{ $nombreUsuario }}</p>
 						</div>	
-						@if($cliente->tipo_servicio === 'Comunidad de Conectividad') <!-- Verifica el tipo de servicio -->
+						@if($cliente->tipo_servicio === 'Comunidad de Conectividad'|| 'COMUNIDAD DE CONECTIVIDAD') <!-- Verifica el tipo de servicio -->
 						<div class="col-md-6">
 							<label>Tipo de Comunidad</label>
 							<p>{{ $cliente->tipo_comunidad }}</p> <!-- Muestra el valor de tipo_comunidad -->
 						</div>
 						@endif
-						<div class="col-md-6">
-							<label>Inmueble</label>
-							<p>{{ $cliente->inmueble }}</p> <!-- Muestra el valor de tipo_comunidad -->
-						</div>
 					@endif
 				
 							

@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 class ServiceProvider extends IlluminateServiceProvider
 {
 
+    
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -75,6 +76,9 @@ class ServiceProvider extends IlluminateServiceProvider
             $configPath = __DIR__.'/../config/dompdf.php';
             $this->publishes([$configPath => config_path('dompdf.php')], 'config');
         }
+             // Forzar URLs HTTPS en Laravel 
+             \URL::forceScheme('https');
+
     }
 
     /**

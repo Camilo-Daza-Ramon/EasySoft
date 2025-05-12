@@ -25,6 +25,7 @@ use Excel;
 use Zipper;
 use PDF;
 use DB;
+use Carbon\Carbon;
 
 class InstalacionesController extends Controller
 {
@@ -35,68 +36,12 @@ class InstalacionesController extends Controller
      */
 
 
-     public function guardarInstalacion(Request $request) { //FUNCION PARA GUARDAR LOS DATOS DE LA INSTALACION DEL PROYECTO GUAJIRA
-        // Validar los datos enviados
-        $request->validate([
-            'TipoConexion' => 'required|string|max:255',
-            'EstructuraInstalacion' => 'nullable|string|max:255',
-            // Campos del formulario para instalacion por Cableado
-            'RouterSerial' => 'nullable|string|max:255',
-            'CableUTP' => 'nullable|integer|min:0',
-            'SwitchPuerto' => 'nullable|integer|min:1|max:16',
-            // Campos del formulario para instalacion Inhalambrica para los PAC-CC y NODOS
-            'Paneles' => 'nullable|integer|min:0|max:2',
-            'PotenciaPaneles' => 'nullable|integer|in:580,630',
-            'ControladorSolar' => 'nullable|interger|min:0|max:1',
-            'AccesPoint'=> 'nullable|integer|min:0|max:1',
-            'SwitchPOE' => 'nullable|integer|min:0|max:1',
-            'Switch' => 'nullable|integer|min:0|max:2',
-            'Bateria' => 'nullable|integer|min:0|max:1',
-            'Router' => 'nullable|integer|min:0|max:1',
-            'ConversorDCDC' => 'nullable|integer|min:0|max:1',
-            'AntenaSectorial' => 'nullable|integer|min:0|max:4',
-            'AntenaReceptora' => 'nullable|integer|min:0|max:1',
-            'CamaraIP' => 'nullable|integer|min:0|max:2',
-            'CerboGX' => 'nullable|integer|min:0|max:1',
-            'Inversor' => 'nullable|integer|min:0|max:1',
-        ]);
-    
-        // Guardar los datos en la base de datos
-        ClientesInstalaciones::create([
-            'TipoConexion' => $request->input('TipoConexion'),
-            'EstructuraInstalacion' => $request->input('EstructuraInstalacion'),
-            // Guardar campos del formulario para instalacion por Cableado
-            'RouterSerial' => $request->input('RouterSerial'),
-            'CableUTP' => $request->input('CableUTP'),
-            'SwitchPuerto' => $request->input('SwitchPuerto'),
-            //Guardar los campor del formulario para instalacion Inhalambrica para los PAC-CC y NODOS
-            'Paneles' => $request->input('Paneles'),
-            'PotenciaPaneles' => $request->input('PotenciaPaneles'),
-            'ControladorSolar' => $request->input('ControladorSolar'),
-            'AccesPoint'=> $request->input('AccesPoint'),
-            'SwitchPOE' => $request->input('SwitchPOE'),
-            'Switch' => $request->input('Switch'),
-            'Bateria' => $request->input('Bateria'),
-            'Router' => $request->input('Router'),
-            'ConversorDCDC' => $request->input('ConversorDCDC'),
-            'AntenaSectorial' => $request->input('AntenaSectorial'),
-            'AntenaReceptora' => $request->input('AntenaReceptora'),
-            'CamaraIP' => $request->input('CamaraIP'),
-            'CerboGX' => $request->input('CerboGX'),
-            'Inversor' => $request->input('Inversor'),
-        ]);
-    
-        // Redirigir con mensaje de éxito
-        return redirect()->back()->with('success', 'Datos guardados correctamente.');
-    }
-
-
 
     public function index(Request $request)
-    {
+        {
 
         if (Auth::user()->can('instalaciones-listar')) {
-            if (Auth::user()->hasRole('tecnico')) {
+            if (Auth::user()->roles()->where('name', 'tecnico')->exists()) {
                 $instalaciones = Instalacion::Cedula($request->get('documento'))
                     ->Proyecto($request->get('proyecto'))
                     ->Departamento($request->get('departamento'))
@@ -216,6 +161,8 @@ class InstalacionesController extends Controller
 
             if ($cliente->count() > 0) {
 
+
+            
                 $tipos_equipos = ['Computador de Escritorio', 'Computador Portatil', 'Celular - SmartPhone', 'Tablet', 'Tv - SmartTV'];
                 $tipos_conexion = ['Planta Electrica', 'Panel Solar', 'Sistema Electrico Local', 'UPS'];
                 $tipos_pelectrica = ['Estabilizador', 'UPS', 'Proteccion de Equipo', 'N/A'];
@@ -224,6 +171,7 @@ class InstalacionesController extends Controller
                 $estados = array('APROBADO', 'RECHAZADO', 'PENDIENTE');
                 $tipos_correas = ['10cm', '15cm', '20cm', '30cm', '55cm'];
                 $tipos_chazos = ['1/4', '3/8'];
+                $estructura = ['Nodo Primario', 'Nodo Secundario','PAC-CC','Hogar'];
 
                 $materiales = [
                     [
@@ -321,6 +269,7 @@ class InstalacionesController extends Controller
                         'tipos_retenciones',
                         'tipos_correas',
                         'tipos_chazos',
+                        'estructura',
                         'index_key'
                     )
                 );
@@ -341,32 +290,768 @@ class InstalacionesController extends Controller
     public function store(Request $request)
     {
 
+        $cliente = Cliente::with('proyecto')->find($request->cliente_id); // Cliente con su proyecto asociado
+
+
         if (Auth::user()->can('instalaciones-crear')) {
 
             $this->validate($request, [
-                'serial_ont' => 'required',
-                'tipo_equipo' => 'required',
-                'tipo_conexion' => 'required',
-                'marca_equipo' => 'required',
-                'serial_equipo' => 'required',
-                'tipo_conexion' => 'required',
-                'tipo_proteccion' => 'required',
-                'marca_equipo_pe' => 'required',
-                'cantidad_equipos' => 'required',
-                'coordenadas' => 'required',
-                'vel_subida' => 'required',
-                'vel_bajada' => 'required',
+                'serial_ont' => 'nullable',
+                'tipo_equipo' => 'nullable',
+                'tipo_conexion' => 'nullable',
+                'marca_equipo' => 'nullable',
+                'serial_equipo' => 'nullable',
+                'tipo_conexion' => 'nullable',
+                'tipo_proteccion' => 'nullable',
+                'marca_equipo_pe' => 'nullable',
+                'cantidad_equipos' => 'nullable',
+                'coordenadas' => 'nullable',
+                'vel_subida' => 'nullable',
+                'vel_bajada' => 'nullable',
 
-                'pregunta_firma' => 'required',
 
-                'speedtest' => 'required|mimes:jpg,jpeg,png',
-                'ping' => 'required|mimes:jpg,jpeg,png',
-                'navegacion' => 'required|mimes:jpg,jpeg,png',
-                'youtube' => 'required|mimes:jpg,jpeg,png',
-                'mintic' => 'required|mimes:jpg,jpeg,png',
-                'instalacion' => 'required|mimes:jpg,jpeg,png',
-                'firma' => 'required'
+                'pregunta_firma' => 'nullable',
+
+                'speedtest' => 'nullable|mimes:jpg,jpeg,png',
+                'ping' => 'nullable|mimes:jpg,jpeg,png',
+                'navegacion' => 'nullable|mimes:jpg,jpeg,png',
+                'youtube' => 'nullable|mimes:jpg,jpeg,png',
+                'mintic' => 'nullable|mimes:jpg,jpeg,png',
+                'instalacion' => 'nullable|mimes:jpg,jpeg,png',
+                'firma' => 'nullable',
+
+                // CAMPOS DEL FORMULARIO DE LA GUAJIRA
+                'cliente_id' => 'required|integer',
+                // CAMPOS FORMULARIO CABLEADO 
+                'Router' => 'nullable|integer|min:0|max:1',
+                'RouterSerial' => 'nullable|string|max:20',
+                'RouterMarca' => 'nullable|string|max:20',
+                'ROUTER_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'Cableado' => 'nullable|integer|min:0|max:10',
+                'CableadoSerial' => 'nullable|string|max:20',
+                'CableadoMarca' => 'nullable|string|max:20',
+                'CABLEADO_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'Switch' => 'nullable|integer|min:1|max:16',
+                'SwitchSerial' => 'nullable|string|max:20',
+                'SwitchMarca' => 'nullable|string|max:20',
+                'SWITCH_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',     
+                // CAMPOS FORMULARIO NODO PRIMARIO
+                'AntenaReceptora' => 'nullable|integer|min:0|max:1',
+                'AntenaReceptora_Serial' => 'nullable|string|max:20',
+                'AntenaReceptora_Marca' => 'nullable|string|max:20',
+                'AntenaReceptora_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'GABINETES' => 'nullable|integer|min:0|max:1',
+                'GABINETESSERIAL' => 'nullable|string|max:20',
+                'GABINETEMARCA' => 'nullable|string|max:20',
+                'FOTOGABINETE' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MODULOSFP' => 'nullable|integer|min:1|max:1',
+                'MODULOSFPSERIAL' => 'nullable|string|max:20',
+                'MODULOSFPMARCA' => 'nullable|string|max:20',
+                'FOTOMODULO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'SWITCHIP' => 'nullable|integer|min:0|max:2',
+                'SWITCHIPSERIAL1' => 'nullable|string|max:20',
+                'SWITCHIPMARCA1' => 'nullable|string|max:20',
+                'FOTOSWITCHIP1' => 'nullable|image|mimes:jpg,jpeg,png',
+                'SWITCHIPSERIAL2' => 'nullable|string|max:20',
+                'SWITCHIPMARCA2' => 'nullable|string|max:20',
+                'FOTOSWITCHIP2' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MODULOSFT10' => 'nullable|integer|min:0|max:4',
+                'MODULOSFT10SERIAL1' => 'nullable|string|max:20',
+                'MODULOSFT10MARCA1' => 'nullable|string|max:20',
+                'FOTOMODULOSFT101' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MODULOSFT10SERIAL2' => 'nullable|string|max:20',
+                'MODULOSFT10MARCA2' => 'nullable|string|max:20',
+                'FOTOMODULOSFT102' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MODULOSFT10SERIAL3' => 'nullable|string|max:20',
+                'MODULOSFT10MARCA3' => 'nullable|string|max:20',
+                'FOTOMODULOSFT103' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MODULOSFT10SERIAL4' => 'nullable|string|max:20',
+                'MODULOSFT10MARCA4' => 'nullable|string|max:20',
+                'FOTOMODULOSFT104' => 'nullable|image|mimes:jpg,jpeg,png',
+                'BANDEJARACK' => 'nullable|integer|min:1|max:1',
+                'BANDEJARACK_SERIAL' => 'nullable|string|max:20',
+                'BANDEJARACK_MARCA' => 'nullable|string|max:20',
+                'BANDEJARACK_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'BANDEJAFIBRA' => 'nullable|integer|min:0|max:1',
+                'BANDEJAFIBRA_SERIAL' => 'nullable|string|max:20',
+                'BANDEJAFIBRA_MARCA' => 'nullable|string|max:20',
+                'BANDEJAFIBRA_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'ORGANIZADOR' => 'nullable|integer|min:0|max:1',
+                'ORGANIZADOR_SERIAL' => 'nullable|string|max:20',
+                'ORGANIZADOR_MARCA' => 'nullable|string|max:20',
+                'ORGANIZADOR_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'SISTEMA' => 'nullable|integer|min:0|max:1',
+                'SISTEMA_SERIAL' => 'nullable|string|max:20',
+                'SISTEMA_MARCA' => 'nullable|string|max:20',
+                'SISTEMA_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'AIRE' => 'nullable|integer|min:0|max:2',
+                'AIRE_SERIAL1' => 'nullable|string|max:20',
+                'AIRE_MARCA1' => 'nullable|string|max:20',
+                'FOTO_AIRE1' => 'nullable|image|mimes:jpg,jpeg,png',
+                'AIRE_SERIAL2' => 'nullable|string|max:20',
+                'AIRE_MARCA2' => 'nullable|string|max:20',
+                'FOTO_AIRE_MARCA2' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MULTITOMA' => 'nullable|integer|min:0|max:2',
+                'MULTITOMA_SERIAL' => 'nullable|string|max:20',
+                'MULTITOMA_MARCA' => 'nullable|string|max:20',
+                'MULTITOMA_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'FIBRAOPTICA' => 'nullable|integer|min:0|max:1000',
+                'FIBRAOPTICA_SERIAL' => 'nullable|string|max:20',
+                'FIBRAOPTICA_MARCA' => 'nullable|string|max:20',
+                'FIBRAOPTICA_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'SISTEMA_ADMIN' => 'nullable|integer|min:0|max:1',
+                'SISTEMA_ADMIN_SERIAL' => 'nullable|string|max:20',
+                'SISTEMA_ADMIN_MARCA' => 'nullable|string|max:20',
+                'SISTEMA_ADMIN_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'SISTEMA_SEGURIDAD' => 'nullable|integer|min:0|max:1',
+                'SISTEMA_SEGURIDAD_SERIAL' => 'nullable|string|max:20',
+                'SISTEMA_SEGURIDAD_MARCA' => 'nullable|string|max:20',
+                'SISTEMA_SEGURIDAD_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'SWITCH24G' => 'nullable|integer|min:0|max:2',
+                'SWITCH24G_SERIAL1' => 'nullable|string|max:20',
+                'SWITCH24G_MARCA1' => 'nullable|string|max:20',
+                'FOTO_SWITCH24G1' => 'nullable|image|mimes:jpg,jpeg,png',
+                'SWITCH24G_SERIAL2' => 'nullable|string|max:20',
+                'SWITCH24G_MARCA2' => 'nullable|string|max:20',
+                'FOTO_SWITCH24G2' => 'nullable|image|mimes:jpg,jpeg,png',
+                // CAMPO ADICIONAL DEL FORMULARIO NODO SECUNDARIO
+                'ESTRUCTURA_PANEL_SOLAR' => 'nullable|integer|min:0|max:1',
+                'ESTRUCTURA_PANEL_SOLAR_SERIAL' => 'nullable|string|max:20',
+                'ESTRUCTURA_PANEL_SOLAR_MARCA' => 'nullable|string|max:20',
+                'ESTRUCTURA_PANEL_SOLAR_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MODULO_SFP' => 'nullable|integer|min:0|max:5',
+                'MODULO_SFP_SERIAL1' => 'nullable|string|max:20',
+                'MODULO_SFP_MARCA1' => 'nullable|string|max:20',
+                'MODULO_SFP_FOTO1' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MODULO_SFP_SERIAL2' => 'nullable|string|max:20',
+                'MODULO_SFP_MARCA2' => 'nullable|string|max:20',
+                'MODULO_SFP_FOTO2' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MODULO_SFP_SERIAL3' => 'nullable|string|max:20',
+                'MODULO_SFP_MARCA3' => 'nullable|string|max:20',
+                'MODULO_SFP_FOTO3' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MODULO_SFP_SERIAL4' => 'nullable|string|max:20',
+                'MODULO_SFP_MARCA4' => 'nullable|string|max:20',
+                'MODULO_SFP_FOTO4' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MODULO_SFP_SERIAL5' => 'nullable|string|max:20',
+                'MODULO_SFP_MARCA5' => 'nullable|string|max:20',
+                'MODULO_SFP_FOTO5' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MODULO_SFP_10GBPS' => 'nullable|integer|min:0|max:2',
+                'MODULO_SFP_10GBPS_SERIAL1' => 'nullable|string|max:20',
+                'MODULO_SFP_10GBPS_MARCA1' => 'nullable|string|max:20',
+                'MODULO_SFP_10GBPS_FOTO1' => 'nullable|image|mimes:jpg,jpeg,png',
+                'MODULO_SFP_10GBPS_SERIAL2' => 'nullable|string|max:20',
+                'MODULO_SFP_10GBPS_MARCA2' => 'nullable|string|max:20',
+                'MODULO_SFP_10GBPS_FOTO2' => 'nullable|image|mimes:jpg,jpeg,png',
+                'SWITCH_ACCESO' => 'nullable|integer|min:0|max:1',
+                'SWITCH_ACCESO_SERIAL' => 'nullable|string|max:20',
+                'SWITCH_ACCESO_MARCA' => 'nullable|string|max:20',
+                'SWITCH_ACCESO_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'SWITCH_POE' => 'nullable|integer|min:0|max:1',
+                'SWITCH_POE_SERIAL' => 'nullable|string|max:20',
+                'SWITCH_POE_MARCA' => 'nullable|string|max:20',
+                'SWITCH_POE_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'ANTENA_SECTORIAL' => 'nullable|integer|min:0|max:4',
+                'ANTENA_SECTORIAL_SERIAL1' => 'nullable|string|max:20',
+                'ANTENA_SECTORIAL_MARCA1' => 'nullable|string|max:20',
+                'ANTENA_SECTORIAL_FOTO1' => 'nullable|image|mimes:jpg,jpeg,png',
+                'ANTENA_SECTORIAL_SERIAL2' => 'nullable|string|max:20',
+                'ANTENA_SECTORIAL_MARCA2' => 'nullable|string|max:20',
+                'ANTENA_SECTORIAL_FOTO2' => 'nullable|image|mimes:jpg,jpeg,png',
+                'ANTENA_SECTORIAL_SERIAL3' => 'nullable|string|max:20',
+                'ANTENA_SECTORIAL_MARCA3' => 'nullable|string|max:20',
+                'ANTENA_SECTORIAL_FOTO3' => 'nullable|image|mimes:jpg,jpeg,png',
+                'ANTENA_SECTORIAL_SERIAL4' => 'nullable|string|max:20',
+                'ANTENA_SECTORIAL_MARCA4' => 'nullable|string|max:20',
+                'ANTENA_SECTORIAL_FOTO4' => 'nullable|image|mimes:jpg,jpeg,png',
+                'FIBRA_OPTICA' => 'nullable|integer|min:0|max:30',
+                'FIBRA_OPTICA_SERIAL' => 'nullable|string|max:20',
+                'FIBRA_OPTICA_MARCA' => 'nullable|string|max:20',
+                'FIBRA_OPTICA_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'EMPALME_FIBRA' => 'nullable|integer|min:0|max:1',
+                'EMPALME_FIBRA_SERIAL' => 'nullable|string|max:20',
+                'EMPALME_FIBRA_MARCA' => 'nullable|string|max:20',
+                'EMPALME_FIBRA_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'TORRE_MONTAJE' => 'nullable|integer|min:0|max:1',
+                'TORRE_MONTAJE_SERIAL' => 'nullable|string|max:20',
+                'TORRE_MONTAJE_MARCA' => 'nullable|string|max:20',
+                'TORRE_MONTAJE_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'ESTRUCTURA_METALICA' => 'nullable|integer|min:0|max:1',
+                'ESTRUCTURA_METALICA_SERIAL' => 'nullable|string|max:20',
+                'ESTRUCTURA_METALICA_MARCA' => 'nullable|string|max:20',
+                'ESTRUCTURA_METALICA_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'GABINETE_TELECOM' => 'nullable|integer|min:0|max:1',
+                'GABINETE_TELECOM_SERIAL' => 'nullable|string|max:20',
+                'GABINETE_TELECOM_MARCA' => 'nullable|string|max:20',
+                'GABINETE_TELECOM_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'SISTEMA_FOTOVOLTAICO' => 'nullable|integer|min:0|max:1',
+                'SISTEMA_FOTOVOLTAICO_SERIAL' => 'nullable|string|max:20',
+                'SISTEMA_FOTOVOLTAICO_MARCA' => 'nullable|string|max:20',
+                'SISTEMA_FOTOVOLTAICO_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'CABLE_CAT6' => 'nullable|integer|min:0|max:80',
+                'CABLE_CAT6_SERIAL' => 'nullable|string|max:20',
+                'CABLE_CAT6_MARCA' => 'nullable|string|max:20',
+                'CABLE_CAT6_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                // CAMPOS ADICIONALES PARA HOGAR
+                'AntenaSectorial' => 'nullable|integer|min:0|max:1',
+                'AntenaReceptora_Serial' => 'nullable|string|max:20',
+                'AntenaReceptora_Marca' => 'nullable|string|max:20',
+                'AntenaReceptora_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',   
+                // CAMPOS ADICIONALES PARA PAC-CC
+                'ANTENA_5GHZ' => 'nullable|integer|min:0|max:1',
+                'ANTENA_5GHZ_SERIAL' => 'nullable|string|max:20',
+                'ANTENA_5GHZ_MARCA' => 'nullable|string|max:20',
+                'ANTENA_5GHZ_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'GABINETE_5U' => 'nullable|integer|min:0|max:1',
+                'GABINETE_5U_SERIAL' => 'nullable|string|max:20',
+                'GABINETE_5U_MARCA' => 'nullable|string|max:20',
+                'GABINETE_5U_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'WIFI_AP' => 'nullable|integer|min:0|max:1',
+                'WIFI_AP_SERIAL' => 'nullable|string|max:20',
+                'WIFI_AP_MARCA' => 'nullable|string|max:20',
+                'WIFI_AP_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'POSTE_FIBRA' => 'nullable|integer|min:0|max:1',
+                'POSTE_FIBRA_SERIAL' => 'nullable|string|max:20',
+                'POSTE_FIBRA_MARCA' => 'nullable|string|max:20',
+                'POSTE_FIBRA_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'SISTEMA_TIERRA' => 'nullable|integer|min:0|max:1',
+                'SISTEMA_TIERRA_SERIAL' => 'nullable|string|max:20',
+                'SISTEMA_TIERRA_MARCA' => 'nullable|string|max:20',
+                'SISTEMA_TIERRA_FOTO' => 'nullable|image|mimes:jpg,jpeg,png', 
+                'ROUTER_10PUERTOS' => 'nullable|integer|min:0|max:1',
+                'ROUTER_10PUERTOS_SERIAL' => 'nullable|string|max:20',
+                'ROUTER_10PUERTOS_MARCA' => 'nullable|string|max:20',
+                'ROUTER_10PUERTOS_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'ACCESORIOS_CONECTIVIDAD' => 'nullable|integer|min:0|max:1',
+                'ACCESORIOS_CONECTIVIDAD_SERIAL' => 'nullable|string|max:20',
+                'ACCESORIOS_CONECTIVIDAD_MARCA' => 'nullable|string|max:20',
+                'ACCESORIOS_CONECTIVIDAD_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'TOTEM_SENALETICA' => 'nullable|integer|min:0|max:1',
+                'TOTEM_SENALETICA_SERIAL' => 'nullable|string|max:20',
+                'TOTEM_SENALETICA_MARCA' => 'nullable|string|max:20',
+                'TOTEM_SENALETICA_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',
+                'SISTEMA_ELECTRICO' => 'nullable|integer|min:0|max:1',
+                'SISTEMA_ELECTRICO_SERIAL' => 'nullable|string|max:20',
+                'SISTEMA_ELECTRICO_MARCA' => 'nullable|string|max:20',
+                'SISTEMA_ELECTRICO_FOTO' => 'nullable|image|mimes:jpg,jpeg,png',                         
             ]);
+            // Capturar cliente_id desde el formulario
+            $clienteId = $request->input('cliente_id');
+
+            // Preparar los datos de los elementos
+            $elementos = [
+                [
+                    'label' => 'Router',
+                    'value' => $request->input('Router'),
+                    'serial' => $request->input('RouterSerial'),
+                    'marca' => $request->input('RouterMarca'),
+                    'foto' => $request->file('ROUTER_FOTO') 
+                        ? $request->file('ROUTER_FOTO')->store('fotos/router', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Cableado',
+                    'value' => $request->input('Cableado'),
+                    'serial' => $request->input('CableadoSerial'),
+                    'marca' => $request->input('CableadoMarca'),
+                    'foto' => $request->file('CABLEADO_FOTO') 
+                        ? $request->file('CABLEADO_FOTO')->store('fotos/cableado', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Switch',
+                    'value' => $request->input('Switch'),
+                    'serial' => $request->input('SwitchSerial'),
+                    'marca' => $request->input('SwitchMarca'),
+                    'foto' => $request->file('SWITCH_FOTO') 
+                        ? $request->file('SWITCH_FOTO')->store('fotos/switch', 'public') 
+                        : null,
+                ],
+                // CAMPO ADICIONAL DEL FORMULARIO HOGAR
+                [
+                    'label' => 'Antena Receptora',
+                    'value' => $request->input('AntenaReceptora'),
+                    'serial' => $request->input('AntenaReceptora_Serial'),
+                    'marca' => $request->input('AntenaReceptora_Marca'),
+                    'foto' => $request->file('AntenaReceptora_FOTO') 
+                        ? $request->file('AntenaReceptora_FOTO')->store('fotos/AntenaReceptora', 'public') 
+                        : null,
+                ],
+                // CAMPO ADICIONAL DEL FORMULARIO NODO PRIMARIO
+                [
+                    'label' => 'Gabinetes de Piso',
+                    'value' => $request->input('GABINETES'),
+                    'serial' => $request->input('GABINETESSERIAL'),
+                    'marca' => $request->input('GABINETEMARCA'),
+                    'foto' => $request->file('FOTOGABINETE') 
+                        ? $request->file('FOTOGABINETE')->store('fotos/AnFOTOGABINETE', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Modulo de SFP',
+                    'value' => $request->input('MODULOSFP'),
+                    'serial' => $request->input('MODULOSFPSERIAL'),
+                    'marca' => $request->input('MODULOSFPMARCA'),
+                    'foto' => $request->file('FOTOMODULO') 
+                        ? $request->file('FOTOMODULO')->store('fotos/FOTOMODULO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Switch IP RED (1)',
+                    'value' => $request->input('SWITCHIP'),
+                    'serial' => $request->input('SWITCHIPSERIAL1'),
+                    'marca' => $request->input('SWITCHIPMARCA1'),
+                    'foto' => $request->file('FOTOSWITCHIP1') 
+                        ? $request->file('FOTOSWITCHIP1')->store('fotos/FOTOSWITCHIP1', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Switch IP RED (2)',
+                    'value' => $request->input('SWITCHIP'),
+                    'serial' => $request->input('SWITCHIPSERIAL2'),
+                    'marca' => $request->input('SWITCHIPMARCA2'),
+                    'foto' => $request->file('FOTOSWITCHIP2') 
+                        ? $request->file('FOTOSWITCHIP2')->store('fotos/FOTOSWITCHIP1', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Modulo SFP 10 GBPS (1)',
+                    'value' => $request->input('MODULOSFT10'),
+                    'serial' => $request->input('MODULOSFT10SERIAL1'),
+                    'marca' => $request->input('MODULOSFT10MARCA1'),
+                    'foto' => $request->file('FOTOMODULOSFT101') 
+                        ? $request->file('FOTOMODULOSFT101')->store('fotos/FOTOMODULOSFT101', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Modulo SFP 10 GBPS (2)',
+                    'value' => $request->input('MODULOSFT10'),
+                    'serial' => $request->input('MODULOSFT10SERIAL2'),
+                    'marca' => $request->input('MODULOSFT10MARCA2'),
+                    'foto' => $request->file('FOTOMODULOSFT102') 
+                        ? $request->file('FOTOMODULOSFT102')->store('fotos/FOTOMODULOSFT102', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Modulo SFP 10 GBPS (3)',
+                    'value' => $request->input('MODULOSFT10'),
+                    'serial' => $request->input('MODULOSFT10SERIAL3'),
+                    'marca' => $request->input('MODULOSFT10MARCA3'),
+                    'foto' => $request->file('FOTOMODULOSFT103') 
+                        ? $request->file('FOTOMODULOSFT103')->store('fotos/FOTOMODULOSFT103', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Modulo SFP 10 GBPS (4)',
+                    'value' => $request->input('MODULOSFT10'),
+                    'serial' => $request->input('MODULOSFT10SERIAL4'),
+                    'marca' => $request->input('MODULOSFT10MARCA4'),
+                    'foto' => $request->file('FOTOMODULOSFT104') 
+                        ? $request->file('FOTOMODULOSFT104')->store('fotos/FOTOMODULOSFT104', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Bandeja para Rack',
+                    'value' => $request->input('BANDEJARACK'),
+                    'serial' => $request->input('BANDEJARACK_SERIAL'),
+                    'marca' => $request->input('BANDEJARACK_MARCA'),
+                    'foto' => $request->file('BANDEJARACK_FOTO') 
+                        ? $request->file('BANDEJARACK_FOTO')->store('fotos/BANDEJARACK_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Bandeja para Fibra Optica',
+                    'value' => $request->input('BANDEJAFIBRA'),
+                    'serial' => $request->input('BANDEJAFIBRA_SERIAL'),
+                    'marca' => $request->input('BANDEJAFIBRA_MARCA'),
+                    'foto' => $request->file('BANDEJAFIBRA_FOTO') 
+                        ? $request->file('BANDEJAFIBRA_FOTO')->store('fotos/BANDEJAFIBRA_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Organizador Horizontal 1U',
+                    'value' => $request->input('ORGANIZADOR'),
+                    'serial' => $request->input('ORGANIZADOR_SERIAL'),
+                    'marca' => $request->input('ORGANIZADOR_MARCA'),
+                    'foto' => $request->file('ORGANIZADOR_FOTO') 
+                        ? $request->file('ORGANIZADOR_FOTO')->store('fotos/ORGANIZADOR_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Sistema Hibrido Electrico',
+                    'value' => $request->input('SISTEMA'),
+                    'serial' => $request->input('SISTEMA_SERIAL'),
+                    'marca' => $request->input('SISTEMA_MARCA'),
+                    'foto' => $request->file('SISTEMA_FOTO') 
+                        ? $request->file('SISTEMA_FOTO')->store('fotos/SISTEMA_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Aire Acondicionado (1)',
+                    'value' => $request->input('AIRE'),
+                    'serial' => $request->input('AIRE_SERIAL1'),
+                    'marca' => $request->input('AIRE_MARCA1'),
+                    'foto' => $request->file('FOTO_AIRE1') 
+                        ? $request->file('FOTO_AIRE1')->store('fotos/FOTO_AIRE1', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Aire Acondicionado (2)',
+                    'value' => $request->input('AIRE'),
+                    'serial' => $request->input('AIRE_SERIAL2'),
+                    'marca' => $request->input('AIRE_MARCA2'),
+                    'foto' => $request->file('FOTO_AIRE2') 
+                        ? $request->file('FOTO_AIRE2')->store('fotos/FOTO_AIRE2', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Multitoma Horizontal',
+                    'value' => $request->input('MULTITOMA'),
+                    'serial' => $request->input('MULTITOMA_SERIAL'),
+                    'marca' => $request->input('MULTITOMA_MARCA'),
+                    'foto' => $request->file('MULTITOMA_FOTO') 
+                        ? $request->file('MULTITOMA_FOTO')->store('fotos/MULTITOMA_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Fibra Óptica 24 Hilos',
+                    'value' => $request->input('FIBRAOPTICA'),
+                    'serial' => $request->input('FIBRAOPTICA_SERIAL'),
+                    'marca' => $request->input('FIBRAOPTICA_MARCA'),
+                    'foto' => $request->file('FIBRAOPTICA_FOTO') 
+                        ? $request->file('FIBRAOPTICA_FOTO')->store('fotos/FIBRAOPTICA_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Sistema de Administración',
+                    'value' => $request->input('SISTEMA_ADMIN'),
+                    'serial' => $request->input('SISTEMA_ADMIN_SERIAL'),
+                    'marca' => $request->input('SISTEMA_ADMIN_MARCA'),
+                    'foto' => $request->file('SISTEMA_ADMIN_FOTO') 
+                        ? $request->file('FIBRAOPTICA_FOTO')->store('fotos/FIBRAOPTICA_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Sistema de Seguridad',
+                    'value' => $request->input('SISTEMA_SEGURIDAD'),
+                    'serial' => $request->input('SISTEMA_SEGURIDAD_SERIAL'),
+                    'marca' => $request->input('SISTEMA_SEGURIDAD_MARCA'),
+                    'foto' => $request->file('SISTEMA_SEGURIDAD_FOTO') 
+                        ? $request->file('SISTEMA_SEGURIDAD_FOTO')->store('fotos/SISTEMA_SEGURIDAD_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Switch 24G 4SFP (1)',
+                    'value' => $request->input('SISTEMA_SEGURIDAD'),
+                    'serial' => $request->input('SWITCH24G_SERIAL1'),
+                    'marca' => $request->input('SWITCH24G_MARCA1'),
+                    'foto' => $request->file('FOTO_SWITCH24G1') 
+                        ? $request->file('FOTO_SWITCH24G1')->store('fotos/FOTO_SWITCH24G1', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Switch 24G 4SFP (2)',
+                    'value' => $request->input('SISTEMA_SEGURIDAD'),
+                    'serial' => $request->input('SWITCH24G_SERIAL2'),
+                    'marca' => $request->input('SWITCH24G_MARCA2'),
+                    'foto' => $request->file('FOTO_SWITCH24G2') 
+                        ? $request->file('FOTO_SWITCH24G2')->store('fotos/FOTO_SWITCH24G2', 'public') 
+                        : null,
+                ],
+                // CAMPO ADICIONAL DEL FORMULARIO NODO SECUNDARIO
+                [
+                    'label' => 'Estructura Metálica Panel',
+                    'value' => $request->input('ESTRUCTURA_PANEL_SOLAR'),
+                    'serial' => $request->input('ESTRUCTURA_PANEL_SOLAR_SERIAL'),
+                    'marca' => $request->input('ESTRUCTURA_PANEL_SOLAR_MARCA'),
+                    'foto' => $request->file('ESTRUCTURA_PANEL_SOLAR_FOTO') 
+                        ? $request->file('ESTRUCTURA_PANEL_SOLAR_FOTO')->store('fotos/ESTRUCTURA_PANEL_SOLAR_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Módulo Convertidor de SFP (1)',
+                    'value' => $request->input('MODULO_SFP'),
+                    'serial' => $request->input('MODULO_SFP_SERIAL1'),
+                    'marca' => $request->input('MODULO_SFP_MARCA1'),
+                    'foto' => $request->file('MODULO_SFP_FOTO1') 
+                        ? $request->file('MODULO_SFP_FOTO1')->store('fotos/MODULO_SFP_FOTO1', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Módulo Convertidor de SFP (2)',
+                    'value' => $request->input('MODULO_SFP'),
+                    'serial' => $request->input('MODULO_SFP_SERIAL2'),
+                    'marca' => $request->input('MODULO_SFP_MARCA2'),
+                    'foto' => $request->file('MODULO_SFP_FOTO2') 
+                        ? $request->file('MODULO_SFP_FOTO2')->store('fotos/MODULO_SFP_FOTO2', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Módulo Convertidor de SFP (3)',
+                    'value' => $request->input('MODULO_SFP'),
+                    'serial' => $request->input('MODULO_SFP_SERIAL3'),
+                    'marca' => $request->input('MODULO_SFP_MARCA3'),
+                    'foto' => $request->file('MODULO_SFP_FOTO3') 
+                        ? $request->file('MODULO_SFP_FOTO3')->store('fotos/MODULO_SFP_FOTO3', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Módulo Convertidor de SFP (4)',
+                    'value' => $request->input('MODULO_SFP'),
+                    'serial' => $request->input('MODULO_SFP_SERIAL4'),
+                    'marca' => $request->input('MODULO_SFP_MARCA4'),
+                    'foto' => $request->file('MODULO_SFP_FOTO4') 
+                        ? $request->file('MODULO_SFP_FOTO4')->store('fotos/MODULO_SFP_FOTO4', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Módulo Convertidor de SFP (5)',
+                    'value' => $request->input('MODULO_SFP'),
+                    'serial' => $request->input('MODULO_SFP_SERIAL5'),
+                    'marca' => $request->input('MODULO_SFP_MARCA5'),
+                    'foto' => $request->file('MODULO_SFP_FOTO5') 
+                        ? $request->file('MODULO_SFP_FOTO5')->store('fotos/MODULO_SFP_FOTO5', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Modulo SFP 10 GBPS (1)',
+                    'value' => $request->input('MODULO_SFP_10GBPS'),
+                    'serial' => $request->input('MODULO_SFP_10GBPS_SERIAL1'),
+                    'marca' => $request->input('MODULO_SFP_10GBPS_MARCA1'),
+                    'foto' => $request->file('MODULO_SFP_10GBPS_FOTO1') 
+                        ? $request->file('MODULO_SFP_10GBPS_FOTO1')->store('fotos/MODULO_SFP_10GBPS_FOTO1', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Modulo SFP 10 GBPS (2)',
+                    'value' => $request->input('MODULO_SFP_10GBPS'),
+                    'serial' => $request->input('MODULO_SFP_10GBPS_SERIAL1'),
+                    'marca' => $request->input('MODULO_SFP_10GBPS_MARCA1'),
+                    'foto' => $request->file('MODULO_SFP_10GBPS_FOTO2') 
+                        ? $request->file('MODULO_SFP_10GBPS_FOTO2')->store('fotos/MODULO_SFP_10GBPS_FOTO2', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Switch de Acceso 10GE',
+                    'value' => $request->input('SWITCH_ACCESO'),
+                    'serial' => $request->input('SWITCH_ACCESO_SERIAL'),
+                    'marca' => $request->input('SWITCH_ACCESO_MARCA'),
+                    'foto' => $request->file('SWITCH_ACCESO_FOTO') 
+                        ? $request->file('SWITCH_ACCESO_FOTO')->store('fotos/SWITCH_ACCESO_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Switches 48+G 4SFP',
+                    'value' => $request->input('SWITCH_POE'),
+                    'serial' => $request->input('SWITCH_POE_SERIAL'),
+                    'marca' => $request->input('SWITCH_POE_MARCA'),
+                    'foto' => $request->file('SWITCH_POE_FOTO') 
+                        ? $request->file('SWITCH_POE_FOTO')->store('fotos/SWITCH_POE_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Antena de Transmisión Sectorial (1)',
+                    'value' => $request->input('ANTENA_SECTORIAL'),
+                    'serial' => $request->input('ANTENA_SECTORIAL_SERIAL1'),
+                    'marca' => $request->input('ANTENA_SECTORIAL_MARCA1'),
+                    'foto' => $request->file('ANTENA_SECTORIAL_FOTO1') 
+                        ? $request->file('ANTENA_SECTORIAL_FOTO1')->store('fotos/ANTENA_SECTORIAL_FOTO1', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Antena de Transmisión Sectorial (2)',
+                    'value' => $request->input('ANTENA_SECTORIAL'),
+                    'serial' => $request->input('ANTENA_SECTORIAL_SERIAL2'),
+                    'marca' => $request->input('ANTENA_SECTORIAL_MARCA2'),
+                    'foto' => $request->file('ANTENA_SECTORIAL_FOTO2') 
+                        ? $request->file('ANTENA_SECTORIAL_FOTO2')->store('fotos/ANTENA_SECTORIAL_FOTO2', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Antena de Transmisión Sectorial (3)',
+                    'value' => $request->input('ANTENA_SECTORIAL'),
+                    'serial' => $request->input('ANTENA_SECTORIAL_SERIAL3'),
+                    'marca' => $request->input('ANTENA_SECTORIAL_MARCA3'),
+                    'foto' => $request->file('ANTENA_SECTORIAL_FOTO3') 
+                        ? $request->file('ANTENA_SECTORIAL_FOTO3')->store('fotos/ANTENA_SECTORIAL_FOTO3', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Antena de Transmisión Sectorial (4)',
+                    'value' => $request->input('ANTENA_SECTORIAL'),
+                    'serial' => $request->input('ANTENA_SECTORIAL_SERIAL4'),
+                    'marca' => $request->input('ANTENA_SECTORIAL_MARCA4'),
+                    'foto' => $request->file('ANTENA_SECTORIAL_FOTO4') 
+                        ? $request->file('ANTENA_SECTORIAL_FOTO4')->store('fotos/ANTENA_SECTORIAL_FOTO4', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Fibra Óptica 24 Hilos',
+                    'value' => $request->input('FIBRA_OPTICA'),
+                    'serial' => $request->input('FIBRA_OPTICA_SERIAL'),
+                    'marca' => $request->input('FIBRA_OPTICA_MARCA'),
+                    'foto' => $request->file('FIBRA_OPTICA_FOTO') 
+                        ? $request->file('FIBRA_OPTICA_FOTO')->store('fotos/FIBRA_OPTICA_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Empalme Fibra Óptica',
+                    'value' => $request->input('EMPALME_FIBRA'),
+                    'serial' => $request->input('EMPALME_FIBRA_SERIAL'),
+                    'marca' => $request->input('EMPALME_FIBRA_MARCA'),
+                    'foto' => $request->file('EMPALME_FIBRA_FOTO') 
+                        ? $request->file('EMPALME_FIBRA_FOTO')->store('fotos/EMPALME_FIBRA_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Torre para Montaje de Equipo',
+                    'value' => $request->input('TORRE_MONTAJE'),
+                    'serial' => $request->input('TORRE_MONTAJE_SERIAL'),
+                    'marca' => $request->input('TORRE_MONTAJE_MARCA'),
+                    'foto' => $request->file('TORRE_MONTAJE_FOTO') 
+                        ? $request->file('TORRE_MONTAJE_FOTO')->store('fotos/TORRE_MONTAJE_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Estructura para el Gabinete',
+                    'value' => $request->input('ESTRUCTURA_METALICA'),
+                    'serial' => $request->input('ESTRUCTURA_METALICA_SERIAL'),
+                    'marca' => $request->input('ESTRUCTURA_METALICA_MARCA'),
+                    'foto' => $request->file('ESTRUCTURA_METALICA_FOTO') 
+                        ? $request->file('ESTRUCTURA_METALICA_FOTO')->store('fotos/ESTRUCTURA_METALICA_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Gabinete para Equipos',
+                    'value' => $request->input('GABINETE_TELECOM'),
+                    'serial' => $request->input('GABINETE_TELECOM_SERIAL'),
+                    'marca' => $request->input('GABINETE_TELECOM_MARCA'),
+                    'foto' => $request->file('GABINETE_TELECOM_FOTO') 
+                        ? $request->file('GABINETE_TELECOM_FOTO')->store('fotos/GABINETE_TELECOM_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Sistema Fotovoltaico',
+                    'value' => $request->input('SISTEMA_FOTOVOLTAICO'),
+                    'serial' => $request->input('SISTEMA_FOTOVOLTAICO_SERIAL'),
+                    'marca' => $request->input('SISTEMA_FOTOVOLTAICO_MARCA'),
+                    'foto' => $request->file('SISTEMA_FOTOVOLTAICO_FOTO') 
+                        ? $request->file('SISTEMA_FOTOVOLTAICO_FOTO')->store('fotos/SISTEMA_FOTOVOLTAICO_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Cable UT CAT 6 24 AWG',
+                    'value' => $request->input('CABLE_CAT6'),
+                    'serial' => $request->input('CABLE_CAT6_SERIAL'),
+                    'marca' => $request->input('CABLE_CAT6_MARCA'),
+                    'foto' => $request->file('CABLE_CAT6_FOTO') 
+                        ? $request->file('CABLE_CAT6_FOTO')->store('fotos/CABLE_CAT6_FOTO', 'public') 
+                        : null,
+                ],
+                // CAMPO ADICIONAL DEL FORMULARIO PAC-CC
+                [
+                    'label' => 'Antena Receptora 5 GHz',
+                    'value' => $request->input('ANTENA_5GHZ'),
+                    'serial' => $request->input('ANTENA_5GHZ_SERIAL'),
+                    'marca' => $request->input('ANTENA_5GHZ_MARCA'),
+                    'foto' => $request->file('ANTENA_5GHZ_FOTO') 
+                        ? $request->file('ANTENA_5GHZ_FOTO')->store('fotos/ANTENA_5GHZ_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Gabinete Compacto 5U',
+                    'value' => $request->input('GABINETE_5U'),
+                    'serial' => $request->input('GABINETE_5U_SERIAL'),
+                    'marca' => $request->input('GABINETE_5U_MARCA'),
+                    'foto' => $request->file('GABINETE_5U_FOTO') 
+                        ? $request->file('GABINETE_5U_FOTO')->store('fotos/GABINETE_5U_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Wi-Fi Punto de Acceso',
+                    'value' => $request->input('WIFI_AP'),
+                    'serial' => $request->input('WIFI_AP_SERIAL'),
+                    'marca' => $request->input('WIFI_AP_MARCA'),
+                    'foto' => $request->file('WIFI_AP_FOTO') 
+                        ? $request->file('WIFI_AP_FOTO')->store('fotos/WIFI_AP_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Poste de Fibra de Vidrio',
+                    'value' => $request->input('POSTE_FIBRA'),
+                    'serial' => $request->input('POSTE_FIBRA_SERIAL'),
+                    'marca' => $request->input('POSTE_FIBRA_MARCA'),
+                    'foto' => $request->file('POSTE_FIBRA_FOTO') 
+                        ? $request->file('POSTE_FIBRA_FOTO')->store('fotos/POSTE_FIBRA_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Sistema de Puesta a Tierra',
+                    'value' => $request->input('SISTEMA_TIERRA'),
+                    'serial' => $request->input('SISTEMA_TIERRA_SERIAL'),
+                    'marca' => $request->input('SISTEMA_TIERRA_MARCA'),
+                    'foto' => $request->file('SISTEMA_TIERRA_FOTO') 
+                        ? $request->file('SISTEMA_TIERRA_FOTO')->store('fotos/SISTEMA_TIERRA_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Router con 10 Puertos Gigabit',
+                    'value' => $request->input('ROUTER_10PUERTOS'),
+                    'serial' => $request->input('ROUTER_10PUERTOS_SERIAL'),
+                    'marca' => $request->input('ROUTER_10PUERTOS_MARCA'),
+                    'foto' => $request->file('ROUTER_10PUERTOS_FOTO') 
+                        ? $request->file('ROUTER_10PUERTOS_FOTO')->store('fotos/ROUTER_10PUERTOS_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Accesorios de Conectividad',
+                    'value' => $request->input('ACCESORIOS_CONECTIVIDAD'),
+                    'serial' => $request->input('ACCESORIOS_CONECTIVIDAD_SERIAL'),
+                    'marca' => $request->input('ACCESORIOS_CONECTIVIDAD_MARCA'),
+                    'foto' => $request->file('ACCESORIOS_CONECTIVIDAD_FOTO') 
+                        ? $request->file('ACCESORIOS_CONECTIVIDAD_FOTO')->store('fotos/ACCESORIOS_CONECTIVIDAD_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Instalación de Tótem con Señalética',
+                    'value' => $request->input('TOTEM_SENALETICA'),
+                    'serial' => $request->input('TOTEM_SENALETICA_SERIAL'),
+                    'marca' => $request->input('TOTEM_SENALETICA_MARCA'),
+                    'foto' => $request->file('TOTEM_SENALETICA_FOTO') 
+                        ? $request->file('TOTEM_SENALETICA_FOTO')->store('fotos/TOTEM_SENALETICA_FOTO', 'public') 
+                        : null,
+                ],
+                [
+                    'label' => 'Sistema de Acondicionamiento Eléctrico',
+                    'value' => $request->input('SISTEMA_ELECTRICO'),
+                    'serial' => $request->input('SISTEMA_ELECTRICO_SERIAL'),
+                    'marca' => $request->input('SISTEMA_ELECTRICO_MARCA'),
+                    'foto' => $request->file('SISTEMA_ELECTRICO_FOTO') 
+                        ? $request->file('SISTEMA_ELECTRICO_FOTO')->store('fotos/SISTEMA_ELECTRICO_FOTO', 'public') 
+                        : null,
+                ],
+
+            ];
+
+            // Filtrar los elementos con valores no vacíos
+            $elementosValidos = array_filter($elementos, function ($elemento) {
+                return !empty($elemento['value']) || !empty($elemento['serial']) || !empty($elemento['marca']) || !empty($elemento['foto']);
+            });
+
+            // Insertar cada elemento en la tabla `ElementosInstalacionGuajira`
+            foreach ($elementosValidos as $elemento) {
+                DB::statement('INSERT INTO ElementosInstalacionGuajira (element_name, cliente_id, cant_element, serial, marca, fotografias, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [
+                    $elemento['label'],         // Nombre del elemento
+                    $clienteId,                 // ID del cliente
+                    $elemento['value'],         // Cantidad del elemento
+                    $elemento['serial'],        // Serial
+                    $elemento['marca'],         // Marca
+                    $elemento['foto'],          // Ruta de la fotografía o null
+                    Carbon::now(),              // Fecha de creación
+                    Carbon::now(),              // Fecha de actualización
+                ]);
+            }
+
+
 
             $result = DB::transaction(function () use ($request) {
 
@@ -508,6 +1193,7 @@ class InstalacionesController extends Controller
                 $ont = ActivoFijo::where('serial', $request->serial_ont)->first();
 
                 $instalacion = new Instalacion;
+                $instalacion->estructura = $request->input('estructura'); // Asigna el valor del formulario
                 $instalacion->ClienteId = $request->cliente_id;
                 $instalacion->serial_ont = $request->serial_ont;
 
@@ -591,7 +1277,7 @@ class InstalacionesController extends Controller
 
                     //Declaramos una ruta
                     $directory = 'installations/' . $instalacion->id;
-
+                    
                     /*if($request->pregunta_firma == 'FIRMAR'){
                         $request->firma = base64_decode($request->firma);
                     }*/
@@ -632,8 +1318,6 @@ class InstalacionesController extends Controller
                         Storage::disk('public')->deleteDirectory($directory);
                         return ['error', 'Error al actualizar el estado del servicio'];
                     }
-
-
 
                     $cliente->Status = 'ACTIVO';
                     $cliente->EstadoDelServicio = 'Activo';
@@ -681,8 +1365,7 @@ class InstalacionesController extends Controller
                 }
             });
 
-            return response()->json(['resultado' => $result[0], 'mensaje' => $result[1]]);
-        } else {
+            return redirect()->route('instalaciones.index')->with('success', 'Instalación agregada correctamente.');        } else {
             abort(403);
         }
     }
@@ -695,9 +1378,30 @@ class InstalacionesController extends Controller
      */
     public function show($id)
     {
+
         if (Auth::user()->can('instalaciones-ver')) {
 
             $instalacion = Instalacion::findOrFail($id);
+            // Capturar el ProyectoId asociado al cliente
+            $proyectoId = $instalacion->cliente->ProyectoId;
+            $clienteId = $instalacion->cliente->ClienteId;
+            // Obtener todos los registros de ElementosInstalacionGuajira relacionados con el ClienteId
+            $elementosGuajira = DB::table('ElementosInstalacionGuajira')
+                ->where('cliente_id', $clienteId)
+                ->select('element_name','serial', 'cant_element','marca')
+                ->get()
+                ->map(function ($elemento) {
+                    return [
+                        'element_name' => $elemento->element_name,
+                        'serial' => $elemento->serial,
+                        'cantidad' => $elemento->cant_element,
+                        'marca' => $elemento->marca
+                    ];
+                })
+                ->toArray();
+
+
+
 
             if (Auth::user()->proyectos()->count() > 0) {
 
@@ -713,7 +1417,7 @@ class InstalacionesController extends Controller
             $tecnicos = User::whereHas('roles', function ($q) {
                 $q->where('roles.name', '=', 'tecnico');
             })->orderBy('name', 'ASC')->get();
-            return view('adminlte::instalaciones.show', compact('instalacion', 'motivos_rechazo', 'tecnicos'));
+            return view('adminlte::instalaciones.show', compact('instalacion', 'motivos_rechazo', 'tecnicos','elementosGuajira'));
         } else {
             abort(403);
         }
@@ -797,32 +1501,32 @@ class InstalacionesController extends Controller
     {
         if (Auth::user()->can('instalacion-edit')) {
             $this->validate(request(), [
-                'vel_bajada' => 'required',
-                'vel_subida' => 'required',
-                'servicio_activo' => 'required',
-                'cumple_velocidad' => 'required',
-                'serial_ont' => 'required',
-                'estado' => 'required'
+                'vel_bajada' => 'nullable',
+                'vel_subida' => 'nullable',
+                'servicio_activo' => 'nullable',
+                'cumple_velocidad' => 'nullable',
+                'serial_ont' => 'nullable',
+                'estado' => 'nullable'
             ]);
 
 
             if (Auth::user()->can('instalaciones-inventarios-editar')) {
                 $this->validate(request(), [
-                    'conector' => 'required',
-                    'pigtail' => 'required',
-                    'cant_retenciones' => 'required',
-                    'cinta_bandit' => 'required',
-                    'hebilla' => 'required',
-                    'gancho_poste' => 'required',
-                    'gancho_pared' => 'required',
-                    'cant_correa_amarre' => 'required',
-                    'cant_chazo' => 'required',
-                    'tornillo' => 'required',
-                    'roseta' => 'required',
-                    'patch_cord_fibra' => 'required',
-                    'patch_cord_utp' => 'required',
-                    'fibra_drop_desde' => 'required',
-                    'fibra_drop_hasta' => 'required',
+                    'conector' => 'nullable',
+                    'pigtail' => 'nullable',
+                    'cant_retenciones' => 'nullable',
+                    'cinta_bandit' => 'nullable',
+                    'hebilla' => 'nullable',
+                    'gancho_poste' => 'nullable',
+                    'gancho_pared' => 'nullable',
+                    'cant_correa_amarre' => 'nullable',
+                    'cant_chazo' => 'nullable',
+                    'tornillo' => 'nullable',
+                    'roseta' => 'nullable',
+                    'patch_cord_fibra' => 'nullable',
+                    'patch_cord_utp' => 'nullable',
+                    'fibra_drop_desde' => 'nullable',
+                    'fibra_drop_hasta' => 'nullable',
                 ]);
             }
 
@@ -1200,33 +1904,11 @@ class InstalacionesController extends Controller
     public function pdf($id)
     {
         $data = [
-
             'codigo_dane_municipio' => '',
             'orden_trabajo' => '',
             'fecha_instalacion' => '',
             'departamento' => '',
             'municipio' => '',
-
-            // Datos adicionales de instalación de los usuarios del Proyecto Guajira
-            'TipoConexion' => '',
-            'EstructuraInstalacion' => '',
-            'RouterSerial' => '',
-            'CableUTP' => '',
-            'SwitchPuerto' => '',
-            'Paneles' => '',
-            'PotenciaPaneles' => '',
-            'ControladorSolar' => '',
-            'AccesPoint'=> '',
-            'SwitchPOE' => '',
-            'Switch' => '',
-            'Bateria' => '',
-            'Router' => '',
-            'ConversorDCDC' => '',
-            'AntenaSectorial' => '',
-            'AntenaReceptora' => '',
-            'CamaraIP' => '',
-            'CerboGX' => '',
-            'Inversor' => '',
 
             'nombre_tecnico' => '',
             'cedula_tecnico' => '',
@@ -1275,30 +1957,30 @@ class InstalacionesController extends Controller
         ];
 
         $instalacion = Instalacion::findOrFail($id);
+        // Capturar el ProyectoId asociado al cliente
 
-        // Verificar si el ProyectoId es 14
-        if ($instalacion->cliente->proyecto->NumeroDeProyecto == 14) {
-            // Agregar los datos específicos para ProyectoId == 14
-            $data['TipoConexion'] = $instalacion->TipoConexion;
-            $data['EstructuraInstalacion'] = $instalacion->EstructuraInstalacion;
-            $data['RouterSerial'] = $instalacion->RouterSerial;
-            $data['CableUTP'] = $instalacion->CableUTP;
-            $data['SwitchPuerto'] = $instalacion->SwitchPuerto;
-            $data['Paneles'] = $instalacion->Paneles;
-            $data['PotenciaPaneles'] = $instalacion->PotenciaPaneles;
-            $data['ControladorSolar'] = $instalacion->ControladorSolar;
-            $data['AccesPoint'] = $instalacion->AccesPoint;
-            $data['SwitchPOE'] = $instalacion->SwitchPOE;
-            $data['Switch'] = $instalacion->Switch;
-            $data['Bateria'] = $instalacion->Bateria;
-            $data['Router'] = $instalacion->Router;
-            $data['ConversorDCDC'] = $instalacion->ConversorDCDC;
-            $data['AntenaSectorial'] = $instalacion->AntenaSectorial;
-            $data['AntenaReceptora'] = $instalacion->AntenaReceptora;
-            $data['CamaraIP'] = $instalacion->CamaraIP;
-            $data['CerboGX'] = $instalacion->CerboGX;
-            $data['Inversor'] = $instalacion->Inversor;    
-        }
+        $proyectoId = $instalacion->cliente->ProyectoId;
+        $comunidad = $instalacion->cliente->ComunidadID;
+        $nombreComunidad = DB::table('comunidades')->where('ComunidadID', $comunidad)->value('nombre_comunidad');
+        $TipoComunidad = $instalacion->cliente->tipo_comunidad;
+        $tipoConexion = $instalacion->cliente->tipo_conexion;
+        $estructuraConexion = $instalacion->estructura;
+
+        // Agregar el ProyectoId al array $data
+        $data['proyecto_id'] = $proyectoId;
+        $data['comunidad_id'] = $nombreComunidad;
+        $data['tipo_comunidad'] = $TipoComunidad;
+        $data['tipo_conexion'] = $tipoConexion;
+        $data['tipo_estructura'] = $estructuraConexion;
+        // Obtener los elementos de la instalacion relacionada con el cliente
+        $clienteId = $instalacion->cliente->ClienteId;
+        $elementos_guajira = DB::table('ElementosInstalacionGuajira')
+            ->where('cliente_id', $clienteId)
+            ->select('element_name', 'fotografias')
+            ->get();
+
+        $data['elementos_guajira'] = $elementos_guajira;
+
 
         $data['codigo_dane_municipio'] = $instalacion->cliente->municipio->CodigoDane;
 

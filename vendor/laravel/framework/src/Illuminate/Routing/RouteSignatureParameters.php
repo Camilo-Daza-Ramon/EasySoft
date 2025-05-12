@@ -13,7 +13,7 @@ class RouteSignatureParameters
      *
      * @param  array  $action
      * @param  string  $subClass
-     * @return array
+     * @return array 
      */
     public static function fromAction(array $action, $subClass = null)
     {

@@ -10,18 +10,17 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index']);
-
+Route::get('/', function () {
+    return view('welcome');
+});
 Route::group(['middleware' => 'auth'], function () {
 	Route::get('clientes/{id}/edit', 'ClientesController@edit')->name('clientes.edit');
 	Route::post('novedades/masivas', 'NovedadesController@agregar_masivas')->name('novedades.agregar_masivas');
 	Route::post('users/guajira/create', 'ClientesController@createUsersGuajira')->name('users.guajira.create');
 	#prueba
 	Route::get('atencion-clientes/otro', 'AtencionClientesController@otro')->name('atencion-clientes.otro');
-
 
 	Route::get('/storage/pqrs/{id}/{file}','PrivateController@archivos_pqrs');
 	Route::get('/storage/campanas/{campana}/{cliente}/{file}','PrivateController@archivos_campanas');

@@ -71,6 +71,27 @@
 												}
 											});
 										});
+									</script>
+									<div class="form-group col-md-3 col-sm-6 text-center" id="unifier-field" style="display: none;">
+										<label>*ID Unifier</label>
+										<input type="number" name="id_unifier" class="form-control" placeholder="Ingrese el ID de la plataforma Unifier"  min="1" max="645" autocomplete="off">
+									</div>
+									<script> 
+										document.addEventListener('DOMContentLoaded', function () { // Esperar a que el DOM esté listo
+											document.getElementById('proyecto').addEventListener('change', function () {
+												var unifierField = document.getElementById('unifier-field');
+												var selectedValue = this.value; // Obtiene el ProyectoID seleccionado
+
+												if (selectedValue == 14) { // Verifica si el ProyectoID es igual a 14
+													unifierField.style.display = 'block'; // Cambia directamente a display: block
+													unifierField.classList.add('show'); // Clase opcional para transiciones suaves
+												} else {
+													unifierField.style.display = 'none'; // Oculta el campo "Comunidad"
+													unifierField.classList.remove('show'); // Limpia la clase opcional
+													document.getElementById('id_unifier').value = ''; // Resetea el campo "Comunidad"
+												}
+											});
+										});
 									</script>	
 									<div class="form-group col-md-3 col-sm-6 text-center" id="nodo-field" style="display: none;">
 										<label>*Nodo</label>
@@ -134,7 +155,7 @@
 										</script>	
 										<div class="form-group col-md-3 col-sm-6 text-center" id="Tipo-Comunidad-field" style="display: none;">
 											<label>*Tipo de Comunidad de Conectividad</label>
-												<select class="form-control" name="tipo_comunidad" id="Comunidad" class="ComunidadCampo" required>
+												<select class="form-control" name="tipo_comunidad" id="Comunidad" class="ComunidadCampo">
 													<option value="">Seleccione un tipo de Servicio</option>
 													<option value="HOGAR">HOGAR</option>
 													<option value="ZONA WIFI">ZONA WIFI</option>
