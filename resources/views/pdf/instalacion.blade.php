@@ -431,27 +431,43 @@
                             <p style="text-align: center; color: #ffffff;">EVIDENCIAS DE LOS ELEMENTOS DE INSTALACIÓN</p>
                         </td>
                     </tr>
-                    @foreach($data['elementos_guajira']->chunk(2) as $chunk)
+                    @if(isset($data['tipo_comunidad']) && $data['tipo_comunidad'] == 'HOGAR')
                         <tr>
-                            @foreach($chunk as $elemento)
-                                <td>
-                                    <p>{{ $elemento->element_name }}</p>
-                                </td>
-                                <td style="width: 210px; height: auto; text-align: center; overflow: hidden;">
-                                    @php
-                                        $fotoPath = public_path('storage/' . $elemento->fotografias);
-                                    @endphp
-                                    @if(!empty($elemento->fotografias) && file_exists($fotoPath))
-                                        <img src="{{ $fotoPath }}" width="210" style="max-width: 210px; max-height: 250px; object-fit: contain;">
-                                    @endif
-                                </td>
-                            @endforeach
-                            {{-- Si hay un número impar de elementos, agrega celdas vacías --}}
-                            @if($chunk->count() < 2)
-                                <td></td><td></td>
-                            @endif
+                            <td><p>Tipo de conexion (tecnológica)</p></td>
+                            <td style="width: 210px; text-align: center; overflow: hidden;">
+                                @php
+                                    $instalacionPath = public_path(Storage::url($data['instalacion']));
+                                @endphp
+                                @if(!empty($data['instalacion']) && file_exists($instalacionPath))
+                                    <img src="{{ $instalacionPath }}" width="210" style="max-width: 210px; max-height: 250px; object-fit: contain;">
+                                @endif
+                            </td>
+                            <td></td>
+                            <td></td>
                         </tr>
-                    @endforeach
+                    @else
+                        @foreach($data['elementos_guajira']->chunk(2) as $chunk)
+                            <tr>
+                                @foreach($chunk as $elemento)
+                                    <td>
+                                        <p>{{ $elemento->element_name }}</p>
+                                    </td>
+                                    <td style="width: 210px; height: auto; text-align: center; overflow: hidden;">
+                                        @php
+                                            $fotoPath = public_path('storage/' . $elemento->fotografias);
+                                        @endphp
+                                        @if(!empty($elemento->fotografias) && file_exists($fotoPath))
+                                            <img src="{{ $fotoPath }}" width="210" style="max-width: 210px; max-height: 250px; object-fit: contain;">
+                                        @endif
+                                    </td>
+                                @endforeach
+                                {{-- Si hay un número impar de elementos, agrega celdas vacías --}}
+                                @if($chunk->count() < 2)
+                                    <td></td><td></td>
+                                @endif
+                            </tr>
+                        @endforeach
+                    @endif
                 </table>
             @endif
           </tr>

@@ -77,7 +77,7 @@ class ServiceProvider extends IlluminateServiceProvider
             $this->publishes([$configPath => config_path('dompdf.php')], 'config');
         }
              // Forzar URLs HTTPS en Laravel 
-             \URL::forceScheme('https');
+ /*             \URL::forceScheme('https'); */
 
     }
 
